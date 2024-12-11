@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 const pretendard = localFont({
   src: "./fonts/Pretendard-Medium.woff",
@@ -13,7 +15,6 @@ export const metadata: Metadata = {
   description: "Share anything you're interested in",
 };
 
-// navigatin bar를 bootstrap으로 설치해서 넣기
 export default function RootLayout({
   children,
 }: Readonly<{
