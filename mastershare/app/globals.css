@@ -19,25 +19,28 @@
 
 body {
   color: var(--foreground);
-  background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+
+  background-image: url('/mainBackground.png');
+  background-repeat: repeat;
+  background-attachment: fixed;
+  background-position: center; 
 }
 
-@keyframes slidein {
+@keyframes rotate {
   0% {
-    transform: rotate(-10deg);
+    transform: rotate(0deg);
   }
   50% {
     transform: rotate(10deg);
   }
   100% {
-    transform: rotate(-10deg);
+    transform: rotate(0deg);
   }
 }
 
-div.slidein {
-  animation-name: slidein;
+div.rotate {
+  animation-name: rotate;
   animation-duration: 3s;
   animation-iteration-count: infinite;
-  animation-delay: 0.5s;
 }

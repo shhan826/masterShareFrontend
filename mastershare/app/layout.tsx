@@ -3,7 +3,6 @@ import localFont from "next/font/local";
 import "./globals.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-
 const pretendard = localFont({
   src: "./fonts/Pretendard-Medium.woff",
   display: 'swap',
@@ -23,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="kr">
       <body
-        className={`${pretendard.className} ${pretendard.className} antialiased`}
+        className={`${pretendard.className} ${pretendard.className} antialiased `}
       >
         {children}
       </body>
