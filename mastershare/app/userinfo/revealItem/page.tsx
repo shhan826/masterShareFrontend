@@ -1,27 +1,138 @@
-import CookieImg from "@/components/cookieImg";
-import Image from "next/image";
+'use client'
 
-export default function RevealItem ()
-{
+import Image from "next/image";
+import { East_Sea_Dokdo } from 'next/font/google'
+import { useEffect, useRef, useState } from "react";
+import { redirect } from 'next/navigation'
+import CloseX from "@/components/closeX";
+
+const dokdoFont = East_Sea_Dokdo({
+    preload: false,
+    weight: ["400"]
+});
+
+export interface MsgRevealResult {
+    messageId: string,
+    sender: string,
+    title: string,
+    content: string,
+    opened: boolean,
+    createdAt: string
+};
+
+export default function RevealItem () {
+    const msgBoxRef = useRef<HTMLDivElement>(null);
+    const stringDivRef = useRef<HTMLDivElement>(null);
+
+    const [msgId, setMsgId] = useState('');
+    const [messageString, setMessageString] = useState('');
+    const [writerNickName, setWriterNickName] = useState('');
+
+    const accessToken = localStorage.getItem('accessToken') as string;
+
+    const onShareMessage = async () => {
+        alert('메세지 공유 기능 구현 예정');
+    };
+    const onDeleteMessage = () => {
+        alert('메세지 삭제 기능 구현 예정');
+    };
+    const handleMsgReveal = (result: MsgRevealResult) => {
+        if (result === undefined) return;
+        setMessageString(result.content);
+        setWriterNickName(result.sender);
+
+        const stringDiv = stringDivRef.current;
+        if (stringDiv === null) return;
+        if (messageString.length < 30) {
+            stringDiv.style.fontSize = "1.5rem";
+        } else if (messageString.length < 60) {
+            stringDiv.style.fontSize = "1.5rem";
+        } else {
+            stringDiv.style.fontSize = "1rem";
+        }
+    };
+
+    useEffect(() => {
+        setTimeout(() => {
+            const msgBox = msgBoxRef.current;
+            if (msgBox) {
+                msgBox.style.opacity = '1';
+                msgBox.style.transition = '0.8s';
+            }
+        }, 1600)
+    }, [msgBoxRef]);
+    useEffect(() => {
+        const url = new URL(window.location.href);
+        const urlParam = url.searchParams.get('id');
+        if (urlParam === null) {
+            alert('잘못된 접근입니다.');
+            redirect('/');
+        } else {
+            setMsgId(urlParam);
+        }
+    }, [])
+    useEffect(() => {
+        if (msgId === '-1') {
+            setMessageString('새해 복 많이 받으세요!');
+            setWriterNickName('관리자');
+        } else if (msgId !== '') {
+            const fetchURL = "http://localhost:8080/boards/v1/message/" + msgId;
+            fetch(fetchURL, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Athorization": `Bearer ${accessToken}`
+                },
+                })
+                .then((response) => response.json())
+                .then((result) => handleMsgReveal(result));
+        }
+    }, [msgId])
+
     return(
         <div>
-            <div className='absolute w-full h-full flex flex-col justify-center items-center'>
-                <Image
-                    aria-hidden
-                    src="/mainImage.png"
-                    alt="main image"
-                    width={400}
-                    height={400}
-                />
-                <button className='mx-3 btn btn-secondary'>공유하기</button>
+            <div className='absolute w-full text-right z-2'>
+                <CloseX/>
             </div>
-            <div className='absolute flex flex-col justify-center items-center w-full h-screen z-1'>
+            <div className='absolute w-full h-full flex flex-col justify-center items-center'>
+                <div className='tremble_animation'>
+                    <Image
+                        src="/mainImage.png"
+                        alt="main image"
+                        width={400}
+                        height={400}
+                    />
+                </div>
+                <div className='z-2'>
+                    <button className='mx-2 btn btn-warning' onClick={onShareMessage}>
+                        <Image
+                            src="/save.svg"
+                            alt="save"
+                            width={20}
+                            height={20}
+                            className="inline-block"
+                        />
+                        <span> 공유하기</span>
+                    </button>
+                    <button className='mx-2 btn btn-light' onClick={onDeleteMessage}>
+                        <Image
+                            src="/delete.svg"
+                            alt="delete"
+                            width={20}
+                            height={20}
+                            className="inline-block"
+                        />
+                        <span> 버리기</span>
+                    </button>
+                </div>
+            </div>
+            <div ref={msgBoxRef} className='absolute flex flex-col justify-center items-center w-full h-screen z-1' style={{opacity: 0}}>
                 <div className='bg-white w-5/6 h-16 flex flex-col justify-center rounded-md shadow-xl'>
-                    <div className="text-center resize-none w-full outline-none h-7 text-lg">
-                        받은 메시지가 여기에 보여집니다.
+                    <div ref={stringDivRef} className="text-center w-full h-11 text-3xl">
+                        <span className={dokdoFont.className}>{messageString}</span>
                     </div> 
                 </div>
-                <br/>
+                <p className='w-5/6 text-sm text-slate-600 text-right mt-2'>- {writerNickName}</p>
             </div>
         </div>
     );

@@ -1,13 +1,59 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import CookieList from "@/components/cookieList";
 
+export interface CookieData {
+    messageId: string,
+    sender: string,
+    title: string,
+    opened: boolean,
+    createdAt: string,
+}
+interface MsgListResult {
+    dataList: [CookieData],
+    pageRequest: {
+        page: number,
+        size: number
+    },
+    hasPrev: boolean,
+    hasNext: boolean,
+    totalDataCount: number,
+    currentPage: number,
+    prevPage: number,
+    nextPage: number
+}
+interface BoardResult {
+    username: string,
+    nickname: string,
+    maxSize: number
+}
+
 export default function UserInfo() {
     const [pageId, setPageId] = useState('');
+    const [nickName, setNickName] = useState('');
+    const [hasPrev, setHasPrev] = useState(false);
+    const [hasNext, setHasNext] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [prevPage, setPrevPage] = useState(1);
+    const [nextPage, setNextPage] = useState(2);
+    const [totalDataCount, setTotalDataCount] = useState(1);
+    const [cookieArray, setCookieArray] = useState<CookieData[]>([{
+        messageId: '-1',
+        sender: '관리자', 
+        title: '새해복많이', 
+        opened: false,
+        createdAt: ''
+    }]);
+
+    const userId = localStorage.getItem("userId");
+    const name = (nickName === '') ? '회원' : nickName;
+    const isMyPage = (userId === pageId);
+    const randomMsgIndex = Math.floor(Math.random() * cookieArray.length);
+    const randomMsgId = cookieArray[randomMsgIndex].messageId;
+
     useEffect(() => {
         const url = new URL(window.location.href);
         const urlParam = url.searchParams.get('id');
@@ -17,39 +63,111 @@ export default function UserInfo() {
         } else {
             setPageId(urlParam);
         }
-    })
+    }, []);
+    useEffect(() => {
+        if (pageId !== '') {
+            const fetchURL = "http://localhost:8080/boards/v1/" + pageId + "/board";
+            fetch(fetchURL, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                })
+                .then((response) => response.json())
+                .then((result) => handleBoardResult(result));
+        }
+    }, [pageId]);
+    useEffect(() => {
+        if (pageId !== '') {
+            const fetchURL = "http://localhost:8080/boards/v1/" + pageId + "/board/messages?page=1&size=6";
+            fetch(fetchURL, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                })
+                .then((response) => response.json())
+                .then((result) => handleMsgListResult(result));
+        }
+    }, [pageId]);
 
+    const handleBoardResult = (result: BoardResult) => {
+        setNickName(result.nickname);
+    }
+    const handleMsgListResult = (result: MsgListResult) => {
+        const dataList = result.dataList;
+        if (dataList !== undefined && dataList.length >= 1) {
+            setCookieArray(dataList);
+        }
+        setHasPrev(result.hasPrev);
+        setHasNext(result.hasNext);
+        setCurrentPage(result.currentPage);
+        setTotalDataCount(result.totalDataCount);
+        setPrevPage(result.prevPage);
+        setNextPage(result.nextPage);
+    };
     const logout = () => {
-        localStorage.removeItem("loginId");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("nickName");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
         alert('로그아웃 되었습니다.');
-        redirect('/userinfo?id=' + pageId);
+        redirect('/');
     };
     const share = () => {
         navigator.clipboard.writeText(window.location.href);
-        alert('내 페이지 주소가 복사되었습니다.');
+        alert('내 페이지 주소가 복사되었습니다. 친구들에게 공유해보세요.');
     };
+    const movePrevPage = () => {
+        if (hasPrev === false) return;
+        const fetchURL = "http://localhost:8080/boards/v1/" + pageId + "/board/messages?page=" + prevPage + "&size=6";
+        fetch(fetchURL, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            })
+            .then((response) => response.json())
+            .then((result) => handleMsgListResult(result));
+    }
+    const moveNextPage = () => {
+        if (hasNext === false) return;
+        const fetchURL = "http://localhost:8080/boards/v1/" + pageId + "/board/messages?page=" + nextPage + "&size=6";
+        fetch(fetchURL, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            })
+            .then((response) => response.json())
+            .then((result) => handleMsgListResult(result));
+    }
 
-    const loginId = localStorage.getItem("loginId");
-    const isMyPage = loginId === pageId;
+
     // 네비게이션 추가해서 로그아웃, 내역 보기 등 메뉴 구겨담아야 할 듯
 
     return(
-        <div className="grid grid-rows-[80px_1fr_20px] items-center justify-items-center min-h-screen p-6 pb-10 gap-1">
-            <header className="row-start-1 gap-3 items-center justify-center text-center">
-                <p className='font-bold text-lg'>{pageId}님의 포춘 쿠키</p>
+        <div className="grid grid-rows-[80px_1fr_80px] items-center justify-items-center min-h-screen p-6 pb-10 gap-1">
+            <header className="row-start-1 gap-3 items-center justify-center text-center pt-10">
+                <p className='font-bold text-lg'>{name}님의 포춘 쿠키</p>
                 { isMyPage ? (
                     <p>원하는 쿠키를 선택하여 열어보세요!</p>
                 ) : (
-                    <p>{pageId}님에게 쿠키로 덕담을 남겨보세요!</p>
+                    <p>{name}님에게 쿠키로 덕담을 남겨보세요!</p>
                 )}
             </header>
             <div className="flex flex-col row-start-2 items-center w-full h-5/6">
-                <CookieList isRevealPossible={isMyPage}/>
+                <CookieList cookies={cookieArray} isRevealPossible={isMyPage}/>
             </div>
-            <footer className="row-start-3 flex flex-col gap-6 items-center justify-center">
+            <footer className="row-start-3 flex flex-col gap-3 items-center justify-center">
+                <div className="flex flex-row gap-3">
+                    <button onClick={movePrevPage}>&laquo;</button>
+                    <span>&nbsp;&nbsp;{currentPage} / {totalDataCount}&nbsp;&nbsp;</span>
+                    <button onClick={moveNextPage}>&raquo;</button>
+                </div>
                 { isMyPage ? (
                     <div className="flex flex-row gap-3">
-                        <Link href="/userinfo/revealItem"><button type="button" className="btn btn-warning">무작위로 뽑기</button></Link>
+                        <Link href={"/userinfo/revealItem?id=" + randomMsgId}><button type="button" className="btn btn-warning">무작위로 뽑기</button></Link>
                         <button type="button" className="btn btn-light" onClick={share}>친구에게 알리기</button>
                     </div>
                 ) : (
@@ -58,7 +176,7 @@ export default function UserInfo() {
                         <Link href="/login"><button type="button" className="btn btn-light">내 쿠키함 가기</button></Link>
                     </div>
                 )}
-                { isMyPage && <button className='mx-4' onClick={logout}>로그아웃</button> }
+                { isMyPage && <button onClick={logout}>로그아웃</button> }
             </footer>
         </div>
     );

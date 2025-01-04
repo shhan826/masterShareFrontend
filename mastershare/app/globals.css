@@ -39,8 +39,34 @@ body {
   }
 }
 
-div.rotate {
+div.rotate_animation {
   animation-name: rotate;
   animation-duration: 3s;
   animation-iteration-count: infinite;
+}
+
+@keyframes tremble {
+  0% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-10deg);
+  }
+  40% {
+    transform: rotate(10deg);
+  }
+  60% {
+    transform: rotate(-10deg);
+  }
+  80% {
+    transform: rotate(10deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+div.tremble_animation {
+  animation-name: tremble;
+  animation-duration: 1.5s;
 }
