@@ -22,6 +22,7 @@ export default function CookieImg (props: ImgProps)
     if (props.cookieData === undefined) {
         return <></>;
     }
+    const accessToken = localStorage.getItem('accessToken') as string;
     const title = props.cookieData.title;
     const msgId = props.cookieData.messageId
     const link = props.isRevealPossible ? '/userinfo/revealItem?id=' + msgId : '';
@@ -31,6 +32,7 @@ export default function CookieImg (props: ImgProps)
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${accessToken}`
             },
             })
             .then((response) => response.json())

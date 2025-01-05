@@ -17,6 +17,7 @@ export default function AddItem ()
 {
     // TODO: 폰트, 이미지 등 다양한 옵션으로 쿠키를 설정할 수 있게 하면 재밌을 듯
     const ref = useRef<HTMLTextAreaElement>(null);
+    const accessToken = localStorage.getItem('accessToken') as string;
     const [sender, setSender] = useState('익명');
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
@@ -80,13 +81,15 @@ export default function AddItem ()
         }
         return true;
     }
+    // TODO: 메시지 등록할 때 로그인 상태를 요구할 건지 의사결정 필요
     const createCookie = () => {
         if (checkInputInfo() === false) return;
         const fetchURL = "http://localhost:8080/boards/v1/" + pageId + "board/message/new";
         fetch(fetchURL, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${accessToken}`
             },
             body: JSON.stringify({
                 sender: sender,

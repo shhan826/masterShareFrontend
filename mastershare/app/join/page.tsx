@@ -22,8 +22,6 @@ export default function Join() {
     const [nickName, setNickName] = useState('');
     const [email, setEmail] = useState('');
 
-    const accessToken = localStorage.getItem('accessToken') as string;
-
     const onIdHandler = (event: React.FormEvent<HTMLInputElement>) => {
         setId(event.currentTarget.value);
     }
@@ -69,7 +67,6 @@ export default function Join() {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Athorization": `Bearer ${accessToken}`
             },
             body: JSON.stringify({
                 username: id,

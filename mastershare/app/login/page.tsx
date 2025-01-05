@@ -26,7 +26,7 @@ export default function Login() {
 
     // 이미 로그인 되어 있는 경우, userinfo로 바로 이동
     useEffect(() => {
-        if (userId !== null && userId !== '') {
+        if (accessToken !== null && userId !== null && userId !== '') {
             redirect('/userinfo?id=' + userId);
         }
     }, []);

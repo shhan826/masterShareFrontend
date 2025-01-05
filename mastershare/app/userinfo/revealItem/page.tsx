@@ -70,7 +70,8 @@ export default function RevealItem () {
         } else {
             setMsgId(urlParam);
         }
-    }, [])
+    }, []);
+    // TODO: 쿠키 메시지를 보는 행위는 권한 상관 없이 할 수 있어야 함 (open 행동과는 별도)
     useEffect(() => {
         if (msgId === '-1') {
             setMessageString('새해 복 많이 받으세요!');
@@ -81,7 +82,7 @@ export default function RevealItem () {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Athorization": `Bearer ${accessToken}`
+                    "Authorization": `Bearer ${accessToken}`
                 },
                 })
                 .then((response) => response.json())

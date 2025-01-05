@@ -48,6 +48,7 @@ export default function UserInfo() {
         createdAt: ''
     }]);
 
+    const accessToken = localStorage.getItem('accessToken') as string;
     const userId = localStorage.getItem("userId");
     const name = (nickName === '') ? '회원' : nickName;
     const isMyPage = (userId === pageId);
@@ -64,6 +65,7 @@ export default function UserInfo() {
             setPageId(urlParam);
         }
     }, []);
+    // TODO: 메세지 리스트를 보는 행위는 권한 상관없이 가능해야 함
     useEffect(() => {
         if (pageId !== '') {
             const fetchURL = "http://localhost:8080/boards/v1/" + pageId + "/board";
@@ -71,7 +73,9 @@ export default function UserInfo() {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken}`
                 },
+                
                 })
                 .then((response) => response.json())
                 .then((result) => handleBoardResult(result));
@@ -84,6 +88,7 @@ export default function UserInfo() {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${accessToken}`
                 },
                 })
                 .then((response) => response.json())
@@ -118,6 +123,7 @@ export default function UserInfo() {
         navigator.clipboard.writeText(window.location.href);
         alert('내 페이지 주소가 복사되었습니다. 친구들에게 공유해보세요.');
     };
+    // TODO: 메세지 리스트를 보는 행위는 권한 상관없이 가능해야 함
     const movePrevPage = () => {
         if (hasPrev === false) return;
         const fetchURL = "http://localhost:8080/boards/v1/" + pageId + "/board/messages?page=" + prevPage + "&size=6";
@@ -125,6 +131,7 @@ export default function UserInfo() {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${accessToken}`
             },
             })
             .then((response) => response.json())
@@ -137,15 +144,14 @@ export default function UserInfo() {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${accessToken}`
             },
             })
             .then((response) => response.json())
             .then((result) => handleMsgListResult(result));
     }
 
-
     // 네비게이션 추가해서 로그아웃, 내역 보기 등 메뉴 구겨담아야 할 듯
-
     return(
         <div className="grid grid-rows-[80px_1fr_80px] items-center justify-items-center min-h-screen p-6 pb-10 gap-1">
             <header className="row-start-1 gap-3 items-center justify-center text-center pt-10">
@@ -162,7 +168,7 @@ export default function UserInfo() {
             <footer className="row-start-3 flex flex-col gap-3 items-center justify-center">
                 <div className="flex flex-row gap-3">
                     <button onClick={movePrevPage}>&laquo;</button>
-                    <span>&nbsp;&nbsp;{currentPage} / {totalDataCount}&nbsp;&nbsp;</span>
+                    <span>&nbsp;&nbsp;{currentPage} / {Math.floor(totalDataCount / 6 + 1)}&nbsp;&nbsp;</span>
                     <button onClick={moveNextPage}>&raquo;</button>
                 </div>
                 { isMyPage ? (
