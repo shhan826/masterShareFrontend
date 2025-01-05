@@ -1,9 +1,8 @@
 'use client'
 
 import { cookieData } from "@/app/userinfo/page";
-import { MsgRevealResult } from "@/app/userinfo/revealItem/page";
 import Image from "next/image";
-import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { East_Sea_Dokdo } from 'next/font/google'
 
 const dokdoFont = East_Sea_Dokdo({
@@ -16,19 +15,29 @@ interface ImgProps {
     size: number,
     isRevealPossible: boolean,
 }
+interface OpenMessageResult {
+    messageId: string,
+    sender: string,
+    title: string,
+    content: string,
+    opened: boolean,
+    createdAt: string
+}
 
 export default function CookieImg (props: ImgProps)
 {
     if (props.cookieData === undefined) {
         return <></>;
     }
-    const accessToken = localStorage.getItem('accessToken') as string;
     const title = props.cookieData.title;
     const msgId = props.cookieData.messageId
     const link = props.isRevealPossible ? '/userinfo/revealItem?id=' + msgId : '';
-    const msgOpen = () => {
-        const url = "/boards/v1/message/open/" + msgId;
-        fetch(url, {
+
+    const accessToken = localStorage.getItem('accessToken') as string;
+
+    const openMessage = () => {
+        const fetchURL = "http://localhost:8080/boards/v1/message/open/" + msgId;
+        fetch(fetchURL, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -36,12 +45,10 @@ export default function CookieImg (props: ImgProps)
             },
             })
             .then((response) => response.json())
-            .then((result) => onOpenMsg(result));
-    };
-    const onOpenMsg = (result: MsgRevealResult) => {
-        if (result === undefined) {
-            console.log('message open error');
-        }
+            .then((result) => handleOpenMessage(result));
+    }
+    const handleOpenMessage = (result: OpenMessageResult) => {
+        redirect(link);
     }
     const animate = (event: any) => {
         const target = event.target.parentElement;
@@ -52,8 +59,9 @@ export default function CookieImg (props: ImgProps)
             }, 3000);
         }
     };
+
     return(
-        <Link href={link} className="relative" onClick={msgOpen}>
+        <button className="relative" onClick={openMessage}>
             <div className='animateTarget' onMouseOver={animate}>    
                 <Image
                     key={title}
@@ -64,6 +72,6 @@ export default function CookieImg (props: ImgProps)
                 />
                 <div className="absolute left-1/2 top-1 text-black"><span className={dokdoFont.className}>{title}</span></div>
             </div>
-        </Link>
+        </button>
     );
 }
