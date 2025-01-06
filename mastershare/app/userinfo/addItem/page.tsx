@@ -17,12 +17,15 @@ export default function AddItem ()
 {
     // TODO: 폰트, 이미지 등 다양한 옵션으로 쿠키를 설정할 수 있게 하면 재밌을 듯
     const ref = useRef<HTMLTextAreaElement>(null);
+
     const accessToken = localStorage.getItem('accessToken') as string;
+
     const [sender, setSender] = useState('익명');
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [pageId, setPageId] = useState('');
     const [sampleString, setSampleString] = useState('');
+
     const sampleStringIndex = Math.floor(Math.random() * 6);
     const sampleStringArray = [
         '좋은 인연을 만나게 될 지도?',
@@ -110,7 +113,7 @@ export default function AddItem ()
     return(
         <div>
             <div className='absolute w-full text-right z-2'>
-                <CloseX></CloseX>
+                <CloseX backURL={'/userinfo?pageid=' + pageId}/>
             </div>
             <div className='absolute w-full h-full flex flex-col justify-center items-center'>
                 <Image

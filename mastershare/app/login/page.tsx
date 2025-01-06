@@ -27,7 +27,7 @@ export default function Login() {
     // 이미 로그인 되어 있는 경우, userinfo로 바로 이동
     useEffect(() => {
         if (accessToken !== null && userId !== null && userId !== '') {
-            redirect('/userinfo?id=' + userId);
+            redirect('/userinfo?pageid=' + userId);
         }
     }, []);
 
@@ -49,7 +49,7 @@ export default function Login() {
             localStorage.setItem("nickName", userInfo.nickname);
             localStorage.setItem("accessToken", result.accessToken);
             localStorage.setItem("refreshToken", result.refreshToken);
-            redirect('/userinfo?id=' + userInfo.userId);
+            redirect('/userinfo?pageid=' + userInfo.userId);
         } else {
             alert('아이디, 혹은 비밀번호를 다시 한 번 확인해주세요.');
         }

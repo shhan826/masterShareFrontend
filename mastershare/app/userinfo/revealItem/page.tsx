@@ -25,6 +25,7 @@ export default function RevealItem () {
     const stringDivRef = useRef<HTMLDivElement>(null);
 
     const [msgId, setMsgId] = useState('');
+    const [pageId, setPageId] = useState('');
     const [messageString, setMessageString] = useState('');
     const [writerNickName, setWriterNickName] = useState('');
 
@@ -63,12 +64,16 @@ export default function RevealItem () {
     }, [msgBoxRef]);
     useEffect(() => {
         const url = new URL(window.location.href);
-        const urlParam = url.searchParams.get('id');
-        if (urlParam === null) {
+        const urlParam1 = url.searchParams.get('msgid');
+        const urlParam2 = url.searchParams.get('pageid');
+        if (urlParam1 === null) {
             alert('잘못된 접근입니다.');
             redirect('/');
         } else {
-            setMsgId(urlParam);
+            setMsgId(urlParam1);
+            if (urlParam2 !== null) {
+                setPageId(urlParam2);
+            }
         }
     }, []);
     // TODO: 쿠키 메시지를 보는 행위는 권한 상관 없이 할 수 있어야 함 (open 행동과는 별도)
@@ -93,7 +98,7 @@ export default function RevealItem () {
     return(
         <div>
             <div className='absolute w-full text-right z-2'>
-                <CloseX/>
+                <CloseX backURL={'/userinfo?pageid=' + pageId}/>
             </div>
             <div className='absolute w-full h-full flex flex-col justify-center items-center'>
                 <div className='tremble_animation'>

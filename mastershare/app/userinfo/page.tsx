@@ -57,7 +57,7 @@ export default function UserInfo() {
 
     useEffect(() => {
         const url = new URL(window.location.href);
-        const urlParam = url.searchParams.get('id');
+        const urlParam = url.searchParams.get('pageid');
         if (urlParam === null) {
             alert('잘못된 접근입니다.');
             redirect('/');
@@ -163,7 +163,7 @@ export default function UserInfo() {
                 )}
             </header>
             <div className="flex flex-col row-start-2 items-center w-full h-5/6">
-                <CookieList cookies={cookieArray} isRevealPossible={isMyPage}/>
+                <CookieList cookies={cookieArray} isRevealPossible={isMyPage} pageId={pageId}/>
             </div>
             <footer className="row-start-3 flex flex-col gap-3 items-center justify-center">
                 <div className="flex flex-row gap-3">

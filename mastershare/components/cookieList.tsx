@@ -5,13 +5,14 @@ import CookieImg from "./cookieImg";
 import { CookieData } from "@/app/userinfo/page";
 
 interface CookieListProps {
-    cookies: Array<CookieData>;
-    isRevealPossible: boolean;
+    cookies: Array<CookieData>,
+    isRevealPossible: boolean,
+    pageId: string
 }
 
 export default function CookieList (props: CookieListProps)
 {
-    const {cookies, isRevealPossible} = props;
+    const {cookies, isRevealPossible, pageId} = props;
     // const [height, setHeight] = useState(0);
     // const [width, setWidth] = useState(0);
     const ref = useRef<HTMLDivElement>(null);
@@ -48,17 +49,17 @@ export default function CookieList (props: CookieListProps)
         <div ref={ref} className="w-full h-full flex flex-col gap-1 justify-center">
             <div className="flex justify-center">
                 {cookieArray1.map((cookie) => (      
-                    <CookieImg key={cookie.messageId} isRevealPossible={isRevealPossible} cookieData={cookie} size={imgSize}/>
+                    <CookieImg key={cookie.messageId} isRevealPossible={isRevealPossible} cookieData={cookie} size={imgSize} pageId={pageId}/>
                 ))}
             </div>
             <div className="flex justify-center">
                 {cookieArray2.map((cookie) => (      
-                    <CookieImg key={cookie.messageId} isRevealPossible={isRevealPossible} cookieData={cookie} size={imgSize}/>
+                    <CookieImg key={cookie.messageId} isRevealPossible={isRevealPossible} cookieData={cookie} size={imgSize} pageId={pageId}/>
                 ))}
             </div>
             <div className="flex justify-center">
                 {cookieArray3.map((cookie) => (      
-                    <CookieImg key={cookie.messageId} isRevealPossible={isRevealPossible} cookieData={cookie} size={imgSize}/>
+                    <CookieImg key={cookie.messageId} isRevealPossible={isRevealPossible} cookieData={cookie} size={imgSize} pageId={pageId}/>
                 ))}
             </div>
         </div>

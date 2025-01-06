@@ -1,8 +1,14 @@
-export default function CloseX ()
+import { redirect } from 'next/navigation'
+
+interface CloseProps {
+    backURL: string
+}
+
+export default function CloseX (props: CloseProps)
 {
     const closeXString = String.fromCharCode(parseInt('d7', 16));
     const moveBack = () => {
-        history.back();
+        redirect(props.backURL);
     };
     
     return(

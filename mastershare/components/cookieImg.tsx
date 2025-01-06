@@ -14,6 +14,7 @@ interface ImgProps {
     cookieData: cookieData,
     size: number,
     isRevealPossible: boolean,
+    pageId: string
 }
 interface OpenMessageResult {
     messageId: string,
@@ -26,16 +27,21 @@ interface OpenMessageResult {
 
 export default function CookieImg (props: ImgProps)
 {
+    const {cookieData, isRevealPossible, pageId} = props;
     if (props.cookieData === undefined) {
         return <></>;
     }
-    const title = props.cookieData.title;
-    const msgId = props.cookieData.messageId
-    const link = props.isRevealPossible ? '/userinfo/revealItem?id=' + msgId : '';
+    const title = cookieData.title;
+    const msgId = cookieData.messageId
+    const link = isRevealPossible ? '/userinfo/revealItem?msgid=' + msgId + '&pageid=' + pageId : '';
 
     const accessToken = localStorage.getItem('accessToken') as string;
 
     const openMessage = () => {
+        if (msgId === '-1') {
+            redirect(link);
+            return;
+        }
         const fetchURL = "http://localhost:8080/boards/v1/message/open/" + msgId;
         fetch(fetchURL, {
             method: "PATCH",
