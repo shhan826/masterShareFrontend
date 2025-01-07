@@ -5,15 +5,20 @@ import { redirect } from 'next/navigation'
 
 interface JoinResult {
     success: boolean,
-    message: string,
-    userInfo: {
-        userId: string,
-        username: string,
-        email: string,
-        nickname: string
+    data: {
+        userInfo: {
+            userId: string,
+            username: string,
+            email: string,
+            nickname: string
+        },
+        accessToken: string,
+        refreshToken: string
     },
-    accessToken: string,
-    refreshToken: string
+    error: {
+        code: number,
+        message: string
+    }
 }
 
 export default function Join() {
@@ -40,8 +45,14 @@ export default function Join() {
         }
     }
     const handleJoinResult = (result: JoinResult) => {
-        if (result.success) {
-            alert('가입이 완료되었습니다. 가입한 정보로 로그인 해주세요.');
+        const resultData = result.data;
+        if (result.success && resultData) {
+            alert('가입이 완료되었습니다.');
+            const userInfo = resultData.userInfo;
+            localStorage.setItem("userId", userInfo.userId);
+            localStorage.setItem("nickName", userInfo.nickname);
+            localStorage.setItem("accessToken", resultData.accessToken);
+            localStorage.setItem("refreshToken", resultData.refreshToken);
             redirect('/login');
         } else {
             alert('이미 동일한 아이디로 가입된 계정이 있습니다. 다른 아이디로 가입해주세요.');

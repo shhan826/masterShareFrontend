@@ -13,22 +13,37 @@ export interface CookieData {
     createdAt: string,
 }
 interface MsgListResult {
-    dataList: [CookieData],
-    pageRequest: {
-        page: number,
-        size: number
+    sucess: boolean,
+    data: {
+        dataList: [CookieData],
+        pageRequest: {
+            page: number,
+            size: number
+        },
+        hasPrev: boolean,
+        hasNext: boolean,
+        totalDataCount: number,
+        currentPage: number,
+        prevPage: number,
+        nextPage: number,
+        lastPage: number
     },
-    hasPrev: boolean,
-    hasNext: boolean,
-    totalDataCount: number,
-    currentPage: number,
-    prevPage: number,
-    nextPage: number
+    error: {
+        code: number,
+        message: string
+    }
 }
 interface BoardResult {
-    username: string,
-    nickname: string,
-    maxSize: number
+    success: boolean,
+    data: {
+        username: string,
+        nickname: string,
+        maxSize: number
+    },
+    error: {
+        code: number,
+        message: string
+    }
 }
 
 export default function UserInfo() {
@@ -97,19 +112,20 @@ export default function UserInfo() {
     }, [pageId]);
 
     const handleBoardResult = (result: BoardResult) => {
-        setNickName(result.nickname);
+        setNickName(result.data.nickname);
     }
     const handleMsgListResult = (result: MsgListResult) => {
-        const dataList = result.dataList;
+        const resultData = result.data;
+        const dataList = resultData.dataList;
         if (dataList !== undefined && dataList.length >= 1) {
             setCookieArray(dataList);
         }
-        setHasPrev(result.hasPrev);
-        setHasNext(result.hasNext);
-        setCurrentPage(result.currentPage);
-        setTotalDataCount(result.totalDataCount);
-        setPrevPage(result.prevPage);
-        setNextPage(result.nextPage);
+        setHasPrev(resultData.hasPrev);
+        setHasNext(resultData.hasNext);
+        setCurrentPage(resultData.currentPage);
+        setTotalDataCount(resultData.totalDataCount);
+        setPrevPage(resultData.prevPage);
+        setNextPage(resultData.nextPage);
     };
     const logout = () => {
         localStorage.removeItem("userId");

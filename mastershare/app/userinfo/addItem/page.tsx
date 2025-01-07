@@ -6,11 +6,18 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 interface CreateCookieResult {
-    messageId: string,
-    sender: string,
-    title: string,
-    opend: boolean,
-    createdAt: string
+    sucess: boolean,
+    data: {
+        messageId: string,
+        sender: string,
+        title: string,
+        opend: boolean,
+        createdAt: string
+    },
+    error: {
+        code: number,
+        message: string
+    }
 }
 
 export default function AddItem ()

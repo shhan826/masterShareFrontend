@@ -12,12 +12,19 @@ const dokdoFont = East_Sea_Dokdo({
 });
 
 export interface MsgRevealResult {
-    messageId: string,
-    sender: string,
-    title: string,
-    content: string,
-    opened: boolean,
-    createdAt: string
+    sucess: boolean,
+    data: {
+        messageId: string,
+        sender: string,
+        title: string,
+        content: string,
+        opened: boolean,
+        createdAt: string
+    },
+    error: {
+        code: number,
+        message: string
+    }
 };
 
 export default function RevealItem () {
@@ -39,8 +46,8 @@ export default function RevealItem () {
     };
     const handleMsgReveal = (result: MsgRevealResult) => {
         if (result === undefined) return;
-        setMessageString(result.content);
-        setWriterNickName(result.sender);
+        setMessageString(result.data.content);
+        setWriterNickName(result.data.sender);
 
         const stringDiv = stringDivRef.current;
         if (stringDiv === null) return;

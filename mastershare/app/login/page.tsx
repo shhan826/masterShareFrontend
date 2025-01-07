@@ -6,15 +6,20 @@ import Link from 'next/link'
 
 interface LogInResult {
     success: boolean,
-    message: string,
-    userInfo: {
-        userId: string,
-        username: string,
-        email: string,
-        nickname: string
+    data: {
+        userInfo: {
+            userId: string,
+            username: string,
+            email: string,
+            nickname: string
+        },
+        accessToken: string,
+        refreshToken: string
     },
-    accessToken: string,
-    refreshToken: string
+    error: {
+        code: number,
+        message: string
+    }
 }
 
 export default function Login() {
@@ -42,12 +47,13 @@ export default function Login() {
         }
     }
     const handleLoginResult = (result: LogInResult) => {
-        if (result.success) {
-            const userInfo = result.userInfo;
+        const resultData = result.data;
+        if (result.success && resultData) {
+            const userInfo = resultData.userInfo;
             localStorage.setItem("userId", userInfo.userId);
             localStorage.setItem("nickName", userInfo.nickname);
-            localStorage.setItem("accessToken", result.accessToken);
-            localStorage.setItem("refreshToken", result.refreshToken);
+            localStorage.setItem("accessToken", resultData.accessToken);
+            localStorage.setItem("refreshToken", resultData.refreshToken);
             redirect('/userinfo?pageid=' + userInfo.userId);
         } else {
             alert('아이디, 혹은 비밀번호를 다시 한 번 확인해주세요.');
