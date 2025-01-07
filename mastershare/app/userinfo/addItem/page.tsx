@@ -37,7 +37,7 @@ export default function AddItem ()
     ];
 
     useEffect(() => {
-        // url parm
+        // url param
         const url = new URL(window.location.href);
         const urlParam = url.searchParams.get('pageId');
         if (urlParam === null) {
@@ -87,7 +87,7 @@ export default function AddItem ()
     // TODO: 메시지 등록할 때 로그인 상태를 요구할 건지 의사결정 필요
     const createCookie = () => {
         if (checkInputInfo() === false) return;
-        const fetchURL = "http://localhost:8080/boards/v1/" + pageId + "board/message/new";
+        const fetchURL = "http://localhost:8080/boards/v1/" + pageId + "/board/message/new";
         fetch(fetchURL, {
             method: "POST",
             headers: {

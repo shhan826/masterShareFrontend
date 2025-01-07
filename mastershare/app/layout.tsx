@@ -8,9 +8,11 @@ const pretendard = localFont({
   display: 'swap',
 })
 
+// 공유할 때 썸네일 보여줄 수 있게 추가
+
 // SEO 등을 위한 메타데이터 제공
 export const metadata: Metadata = {
-  title: "포춘 쿠키로 새해 복을 전하세요",
+  title: "포춘 쿠키",
   description: "친구들과 포춘 쿠키를 공유하며 덕담을 나눠보세요!",
 };
 

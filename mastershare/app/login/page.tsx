@@ -22,11 +22,10 @@ export default function Login() {
     const [id, setId] = useState('');
 
     const userId = localStorage.getItem('userId');
-    const accessToken = localStorage.getItem('accessToken') as string;
 
     // 이미 로그인 되어 있는 경우, userinfo로 바로 이동
     useEffect(() => {
-        if (accessToken !== null && userId !== null && userId !== '') {
+        if (userId !== null && userId !== '') {
             redirect('/userinfo?pageid=' + userId);
         }
     }, []);
@@ -70,8 +69,7 @@ export default function Login() {
         fetch("http://localhost:8080/auth/v1/login", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Athorization": `Bearer ${accessToken}`
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 username: id,
