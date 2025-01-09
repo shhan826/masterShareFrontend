@@ -32,6 +32,7 @@ export default function CookieImg (props: ImgProps)
         return <></>;
     }
     const title = cookieData.title;
+    const isOpen = cookieData.opened;
     const msgId = cookieData.messageId
     const link = isRevealPossible ? '/userinfo/revealItem?msgid=' + msgId + '&pageid=' + pageId : '';
 
@@ -68,16 +69,31 @@ export default function CookieImg (props: ImgProps)
 
     return(
         <button className="relative" onClick={openMessage}>
-            <div className='animateTarget' onMouseOver={animate}>    
-                <Image
-                    key={title}
-                    src="/mainImage.png"
-                    alt="main image"
-                    width={props.size}
-                    height={props.size}
-                />
-                <div className="absolute left-1/2 top-1 text-black"><span className={dokdoFont.className}>{title}</span></div>
-            </div>
+            { isOpen ? (
+                <div>    
+                    <Image
+                        key={title}
+                        src="/opend_cookie.png"
+                        alt="opend"
+                        width={props.size}
+                        height={props.size}
+                    />
+                    <div className="left-10 text-black"><span className={dokdoFont.className}>{title}</span></div>
+                </div>
+            ) : (
+                <div>
+                    <div className='animateTarget' onMouseOver={animate}>    
+                        <Image
+                            key={title}
+                            src="/mainImage.png"
+                            alt="main image"
+                            width={props.size}
+                            height={props.size}
+                        />
+                    </div>
+                    <div className="left-1/3 text-black"><span className={dokdoFont.className}>{title}</span></div>
+                </div>
+            )}
         </button>
     );
 }

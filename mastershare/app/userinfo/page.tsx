@@ -90,7 +90,6 @@ export default function UserInfo() {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${accessToken}`
                 },
-                
                 })
                 .then((response) => response.json())
                 .then((result) => handleBoardResult(result));

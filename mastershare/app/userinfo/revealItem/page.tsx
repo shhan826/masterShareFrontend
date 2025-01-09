@@ -147,11 +147,12 @@ export default function RevealItem () {
                     <Image
                         src="/mainImage.png"
                         alt="main image"
-                        width={400}
-                        height={400}
+                        width={300}
+                        height={300}
                     />
                 </div>
                 <div className='z-2'>
+                    <br/>
                     <button className='mx-2 btn btn-warning' onClick={onShareMessage}>
                         <Image
                             src="/share.svg"

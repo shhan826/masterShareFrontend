@@ -17,7 +17,7 @@ export default function CookieList (props: CookieListProps)
     // const [width, setWidth] = useState(0);
     const ref = useRef<HTMLDivElement>(null);
     
-    const imgSize = 120;
+    const imgSize = 100;
     const cookieArray1 = [];
     const cookieArray2 = [];
     const cookieArray3 = [];
@@ -44,20 +44,19 @@ export default function CookieList (props: CookieListProps)
     // }, [ref])
 
     return(
-        // Carousel 사용해서 페이지 넘기기 기능 추가 필요
         // component key 할당 제대로 해야 함
-        <div ref={ref} className="w-full h-full flex flex-col gap-1 justify-center">
-            <div className="flex justify-center">
+        <div ref={ref} className="w-full h-full flex flex-col gap-3 justify-center">
+            <div className="flex justify-center gap-3">
                 {cookieArray1.map((cookie) => (      
                     <CookieImg key={cookie.messageId} isRevealPossible={isRevealPossible} cookieData={cookie} size={imgSize} pageId={pageId}/>
                 ))}
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-3">
                 {cookieArray2.map((cookie) => (      
                     <CookieImg key={cookie.messageId} isRevealPossible={isRevealPossible} cookieData={cookie} size={imgSize} pageId={pageId}/>
                 ))}
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-3">
                 {cookieArray3.map((cookie) => (      
                     <CookieImg key={cookie.messageId} isRevealPossible={isRevealPossible} cookieData={cookie} size={imgSize} pageId={pageId}/>
                 ))}

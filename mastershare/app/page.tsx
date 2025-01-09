@@ -13,8 +13,8 @@ export default function Home() {
             <Image
               src="/mainImage.png"
               alt="main image"
-              width={400}
-              height={400}
+              width={300}
+              height={300}
             />
           </Link>
         </div>
