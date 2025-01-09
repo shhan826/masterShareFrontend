@@ -26,6 +26,16 @@ export interface MsgRevealResult {
         message: string
     }
 };
+interface MsgDeleteResult {
+    success: boolean,
+    data: {
+        messageId: string
+    },
+    error : {
+        code: number,
+        message: string
+    }
+}
 
 export default function RevealItem () {
     const msgBoxRef = useRef<HTMLDivElement>(null);
@@ -37,13 +47,38 @@ export default function RevealItem () {
     const [writerNickName, setWriterNickName] = useState('');
 
     const accessToken = localStorage.getItem('accessToken') as string;
+    const backURL = '/userinfo?pageid=' + pageId;
 
     const onShareMessage = async () => {
-        alert('메세지 공유 기능 구현 예정');
+        navigator.clipboard.writeText(window.location.href);
+        alert('주소가 복사되었습니다.');
     };
     const onDeleteMessage = () => {
-        alert('메세지 삭제 기능 구현 예정');
+        if (msgId === '-1') {
+            alert('삭제할 수 없는 내용입니다.');
+            return;
+        }
+        if (confirm("쿠키를 삭제하시겠습니까?") === false) {
+            return;
+        }
+        const fetchURL = "http://localhost:8080/boards/v1/message/delete/" + msgId;
+        fetch(fetchURL, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${accessToken}`
+            },
+            })
+            .then((response) => response.json())
+            .then((result) => handleMsgDelete(result));
     };
+    const handleMsgDelete = (result: MsgDeleteResult) => {
+        if (result.success === false) {
+            alert('삭제할 수 없는 내용입니다.');
+        } else {
+            redirect(backURL);
+        }
+    }
     const handleMsgReveal = (result: MsgRevealResult) => {
         if (result === undefined) return;
         setMessageString(result.data.content);
@@ -105,7 +140,7 @@ export default function RevealItem () {
     return(
         <div>
             <div className='absolute w-full text-right z-2'>
-                <CloseX backURL={'/userinfo?pageid=' + pageId}/>
+                <CloseX backURL={backURL}/>
             </div>
             <div className='absolute w-full h-full flex flex-col justify-center items-center'>
                 <div className='tremble_animation'>
@@ -119,13 +154,13 @@ export default function RevealItem () {
                 <div className='z-2'>
                     <button className='mx-2 btn btn-warning' onClick={onShareMessage}>
                         <Image
-                            src="/save.svg"
-                            alt="save"
+                            src="/share.svg"
+                            alt="share"
                             width={20}
                             height={20}
                             className="inline-block"
                         />
-                        <span> 공유하기</span>
+                        <span>&nbsp;&nbsp;공유하기</span>
                     </button>
                     <button className='mx-2 btn btn-light' onClick={onDeleteMessage}>
                         <Image
@@ -135,7 +170,7 @@ export default function RevealItem () {
                             height={20}
                             className="inline-block"
                         />
-                        <span> 버리기</span>
+                        <span>&nbsp;&nbsp;버리기</span>
                     </button>
                 </div>
             </div>
