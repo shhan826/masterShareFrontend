@@ -54,11 +54,11 @@ export default function UserInfo() {
     const [currentPage, setCurrentPage] = useState(1);
     const [prevPage, setPrevPage] = useState(1);
     const [nextPage, setNextPage] = useState(2);
-    const [totalDataCount, setTotalDataCount] = useState(1);
+    const [lastPage, setLastPage] = useState(1);
     const [cookieArray, setCookieArray] = useState<CookieData[]>([{
         messageId: '-1',
         sender: '관리자', 
-        title: '새해복많이', 
+        title: '기본제공쿠키', 
         opened: false,
         createdAt: ''
     }]);
@@ -122,7 +122,7 @@ export default function UserInfo() {
         setHasPrev(resultData.hasPrev);
         setHasNext(resultData.hasNext);
         setCurrentPage(resultData.currentPage);
-        setTotalDataCount(resultData.totalDataCount);
+        setLastPage(resultData.lastPage);
         setPrevPage(resultData.prevPage);
         setNextPage(resultData.nextPage);
     };
@@ -183,21 +183,21 @@ export default function UserInfo() {
             <footer className="row-start-3 flex flex-col gap-3 items-center justify-center">
                 <div className="flex flex-row gap-3">
                     <button onClick={movePrevPage}>&laquo;</button>
-                    <span>&nbsp;&nbsp;{currentPage} / {Math.floor(totalDataCount / 6 + 1)}&nbsp;&nbsp;</span>
+                    <span>&nbsp;&nbsp;{currentPage} / {lastPage}&nbsp;&nbsp;</span>
                     <button onClick={moveNextPage}>&raquo;</button>
                 </div>
                 { isMyPage ? (
                     <div className="flex flex-row gap-3">
-                        <Link href={"/userinfo/revealItem?id=" + randomMsgId}><button type="button" className="btn btn-warning">무작위로 뽑기</button></Link>
+                        <Link href={"/userinfo/revealItem?id=" + randomMsgId}><button type="button" className="btn btn-warning">무작위로 열기</button></Link>
                         <button type="button" className="btn btn-light" onClick={share}>친구에게 알리기</button>
                     </div>
                 ) : (
                     <div className="flex flex-row gap-3">
-                        <Link href={'/userinfo/addItem?pageId=' + pageId}><button type="button" className="btn btn-warning">포춘 쿠키 만들어주기</button></Link>
+                        <Link href={'/userinfo/addItem?pageId=' + pageId}><button type="button" className="btn btn-warning">쿠키 만들어주기</button></Link>
                         <Link href="/login"><button type="button" className="btn btn-light">내 쿠키함 가기</button></Link>
                     </div>
                 )}
-                { isMyPage && <button onClick={logout}>로그아웃</button> }
+                { userId && <button onClick={logout}>로그아웃</button> }
             </footer>
         </div>
     );
