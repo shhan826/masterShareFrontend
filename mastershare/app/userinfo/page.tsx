@@ -4,47 +4,8 @@ import { useEffect, useState } from "react";
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import CookieList from "@/components/cookieList";
-
-export interface CookieData {
-    messageId: string,
-    sender: string,
-    title: string,
-    opened: boolean,
-    createdAt: string,
-}
-interface MsgListResult {
-    sucess: boolean,
-    data: {
-        dataList: [CookieData],
-        pageRequest: {
-            page: number,
-            size: number
-        },
-        hasPrev: boolean,
-        hasNext: boolean,
-        totalDataCount: number,
-        currentPage: number,
-        prevPage: number,
-        nextPage: number,
-        lastPage: number
-    },
-    error: {
-        code: number,
-        message: string
-    }
-}
-interface BoardResult {
-    success: boolean,
-    data: {
-        username: string,
-        nickname: string,
-        maxSize: number
-    },
-    error: {
-        code: number,
-        message: string
-    }
-}
+import { BoardResult, CookieContent, MsgListResult, MsgOpenResult } from "@/lib/type";
+import { getBoardAPI, getMessageListAPI, openMessageAPI } from "@/lib/util";
 
 export default function UserInfo() {
     const [pageId, setPageId] = useState('');
@@ -55,7 +16,7 @@ export default function UserInfo() {
     const [prevPage, setPrevPage] = useState(1);
     const [nextPage, setNextPage] = useState(2);
     const [lastPage, setLastPage] = useState(1);
-    const [cookieArray, setCookieArray] = useState<CookieData[]>([{
+    const [cookieArray, setCookieArray] = useState<CookieContent[]>([{
         messageId: '-1',
         sender: '관리자', 
         title: '기본제공쿠키', 
@@ -65,10 +26,12 @@ export default function UserInfo() {
 
     const accessToken = localStorage.getItem('accessToken') as string;
     const userId = localStorage.getItem("userId");
+
     const name = (nickName === '') ? '회원' : nickName;
     const isMyPage = (userId === pageId);
     const randomMsgIndex = Math.floor(Math.random() * cookieArray.length);
     const randomMsgId = cookieArray[randomMsgIndex].messageId;
+    const randomMsgLink = '/userinfo/revealItem?msgid=' + randomMsgId + '&pageid=' + pageId;
 
     useEffect(() => {
         const url = new URL(window.location.href);
@@ -80,33 +43,14 @@ export default function UserInfo() {
             setPageId(urlParam);
         }
     }, []);
-    // TODO: 메세지 리스트를 보는 행위는 권한 상관없이 가능해야 함
     useEffect(() => {
         if (pageId !== '') {
-            const fetchURL = "http://localhost:8080/boards/v1/" + pageId + "/board";
-            fetch(fetchURL, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${accessToken}`
-                },
-                })
-                .then((response) => response.json())
-                .then((result) => handleBoardResult(result));
-        }
-    }, [pageId]);
-    useEffect(() => {
-        if (pageId !== '') {
-            const fetchURL = "http://localhost:8080/boards/v1/" + pageId + "/board/messages?page=1&size=6";
-            fetch(fetchURL, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${accessToken}`
-                },
-                })
-                .then((response) => response.json())
-                .then((result) => handleMsgListResult(result));
+            // 1) 게시판 정보
+            getBoardAPI(pageId)
+            .then((result) => handleBoardResult(result));
+            // 2) 메시지 리스트
+            getMessageListAPI(pageId, 1, 6)
+            .then((result) => handleMsgListResult(result));
         }
     }, [pageId]);
 
@@ -138,32 +82,26 @@ export default function UserInfo() {
         navigator.clipboard.writeText(window.location.href);
         alert('내 페이지 주소가 복사되었습니다. 친구들에게 공유해보세요.');
     };
-    // TODO: 메세지 리스트를 보는 행위는 권한 상관없이 가능해야 함
+    const openRandomMessage = () => {
+        if (randomMsgId === '-1') {
+            redirect(randomMsgLink);
+            return;
+        }
+        openMessageAPI(randomMsgId, accessToken)
+        .then((result) => handleOpenMessage(result));
+    };
+    const handleOpenMessage = (result: MsgOpenResult) => {
+        redirect(randomMsgLink);
+    }
     const movePrevPage = () => {
         if (hasPrev === false) return;
-        const fetchURL = "http://localhost:8080/boards/v1/" + pageId + "/board/messages?page=" + prevPage + "&size=6";
-        fetch(fetchURL, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessToken}`
-            },
-            })
-            .then((response) => response.json())
-            .then((result) => handleMsgListResult(result));
+        getMessageListAPI(pageId, prevPage, 6)
+        .then((result) => handleMsgListResult(result));
     }
     const moveNextPage = () => {
         if (hasNext === false) return;
-        const fetchURL = "http://localhost:8080/boards/v1/" + pageId + "/board/messages?page=" + nextPage + "&size=6";
-        fetch(fetchURL, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessToken}`
-            },
-            })
-            .then((response) => response.json())
-            .then((result) => handleMsgListResult(result));
+        getMessageListAPI(pageId, nextPage, 6)
+        .then((result) => handleMsgListResult(result));
     }
 
     // 네비게이션 추가해서 로그아웃, 내역 보기 등 메뉴 구겨담아야 할 듯
@@ -188,13 +126,13 @@ export default function UserInfo() {
                 </div>
                 { isMyPage ? (
                     <div className="flex flex-row gap-3">
-                        <Link href={"/userinfo/revealItem?id=" + randomMsgId}><button type="button" className="btn btn-warning">무작위로 열기</button></Link>
-                        <button type="button" className="btn btn-light" onClick={share}>친구에게 알리기</button>
+                        <button type="button" className="btn btn-warning" onClick={openRandomMessage}>무작위 열기</button>
+                        <button type="button" className="btn btn-light" onClick={share}>공유하기</button>
                     </div>
                 ) : (
                     <div className="flex flex-row gap-3">
                         <Link href={'/userinfo/addItem?pageId=' + pageId}><button type="button" className="btn btn-warning">쿠키 만들어주기</button></Link>
-                        <Link href="/login"><button type="button" className="btn btn-light">내 쿠키함 가기</button></Link>
+                        <Link href="/login"><button type="button" className="btn btn-light">로그인</button></Link>
                     </div>
                 )}
                 { userId && <button onClick={logout}>로그아웃</button> }

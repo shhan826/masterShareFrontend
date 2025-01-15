@@ -2,24 +2,8 @@
 
 import { useState } from "react";
 import { redirect } from 'next/navigation'
-
-interface JoinResult {
-    success: boolean,
-    data: {
-        userInfo: {
-            userId: string,
-            username: string,
-            email: string,
-            nickname: string
-        },
-        accessToken: string,
-        refreshToken: string
-    },
-    error: {
-        code: number,
-        message: string
-    }
-}
+import { JoinInput, JoinResult } from "@/lib/type";
+import { joinAPI } from "@/lib/util";
 
 export default function Join() {
     const [id, setId] = useState('');
@@ -44,6 +28,19 @@ export default function Join() {
             join(event);
         }
     }
+    const checkInputInfo = () => {
+        if (id === '') {
+            alert('아이디를 입력해주세요.');
+            return false;
+        } else if (password === '') {
+            alert('비밀번호를 입력해주세요');
+            return false;
+        } else if (email === '') {
+            alert('이메일 주소를 입력해주세요.');
+            return false;
+        }
+        return true;
+    }
     const handleJoinResult = (result: JoinResult) => {
         const resultData = result.data;
         if (result.success && resultData) {
@@ -58,37 +55,20 @@ export default function Join() {
             alert('이미 동일한 아이디로 가입된 계정이 있습니다. 다른 아이디로 가입해주세요.');
         }
     };
-    const checkInputInfo = () => {
-        if (id === '') {
-            alert('아이디를 입력해주세요.');
-            return false;
-        } else if (password === '') {
-            alert('비밀번호를 입력해주세요');
-            return false;
-        } else if (email === '') {
-            alert('이메일 주소를 입력해주세요.');
-            return false;
-        }
-        return true;
-    }
     const join = (event: React.FormEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
         event.preventDefault();
         if (checkInputInfo() === false) return;
-        fetch("http://localhost:8080/auth/v1/join", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                username: id,
-                password: password,
-                email: email,
-                nickname: nickName
-            }),
-          })
-          .then((response) => response.json())
-          .then((result) => handleJoinResult(result));
+
+        const input: JoinInput = {
+            username: id,
+            password: password,
+            email: email,
+            nickname: nickName
+        };
+        joinAPI(input)
+        .then(result => handleJoinResult(result));
     };
+
     return(
         <div>
             <div className='flex flex-col justify-center items-center w-full h-screen'>

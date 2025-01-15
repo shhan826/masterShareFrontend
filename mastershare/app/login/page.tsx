@@ -3,24 +3,8 @@
 import { useEffect, useState } from "react";
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-
-interface LogInResult {
-    success: boolean,
-    data: {
-        userInfo: {
-            userId: string,
-            username: string,
-            email: string,
-            nickname: string
-        },
-        accessToken: string,
-        refreshToken: string
-    },
-    error: {
-        code: number,
-        message: string
-    }
-}
+import { LoginInput, LoginResult } from "@/lib/type";
+import { loginAPI } from "@/lib/util";
 
 export default function Login() {
     const [password, setPassword] = useState('');
@@ -46,7 +30,17 @@ export default function Login() {
             login(event);
         }
     }
-    const handleLoginResult = (result: LogInResult) => {
+    const checkInputInfo = () => {
+        if (id === '') {
+            alert('아이디를 입력해주세요.');
+            return false;
+        } else if (password === '') {
+            alert('비밀번호를 입력해주세요.');
+            return false;
+        }
+        return true;
+    }
+    const handleLoginResult = (result: LoginResult) => {
         const resultData = result.data;
         if (result.success && resultData) {
             const userInfo = resultData.userInfo;
@@ -59,31 +53,16 @@ export default function Login() {
             alert('아이디, 혹은 비밀번호를 다시 한 번 확인해주세요.');
         }
     };
-    const checkInputInfo = () => {
-        if (id === '') {
-            alert('아이디를 입력해주세요.');
-            return false;
-        } else if (password === '') {
-            alert('비밀번호를 입력해주세요.');
-            return false;
-        }
-        return true;
-    }
     const login = (event: React.FormEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
         event.preventDefault();
         if (checkInputInfo() === false) return;
-        fetch("http://localhost:8080/auth/v1/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                username: id,
-                password: password,
-            }),
-          })
-          .then((response) => response.json())
-          .then((result) => handleLoginResult(result));
+
+        const input: LoginInput = {
+            username: id,
+            password: password
+        };
+        loginAPI(input)
+        .then(result => handleLoginResult(result));
     };
 
     return(

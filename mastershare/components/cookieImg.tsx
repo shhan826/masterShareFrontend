@@ -1,9 +1,10 @@
 'use client'
 
-import { cookieData } from "@/app/userinfo/page";
 import Image from "next/image";
 import { redirect } from 'next/navigation'
 import { East_Sea_Dokdo } from 'next/font/google'
+import { CookieContent, MsgOpenResult } from "@/lib/type";
+import { openMessageAPI } from "@/lib/util";
 
 const dokdoFont = East_Sea_Dokdo({
     preload: false,
@@ -11,18 +12,10 @@ const dokdoFont = East_Sea_Dokdo({
 });
 
 interface ImgProps {
-    cookieData: cookieData,
+    cookieData: CookieContent,
     size: number,
     isRevealPossible: boolean,
     pageId: string
-}
-interface OpenMessageResult {
-    messageId: string,
-    sender: string,
-    title: string,
-    content: string,
-    opened: boolean,
-    createdAt: string
 }
 
 export default function CookieImg (props: ImgProps)
@@ -34,7 +27,7 @@ export default function CookieImg (props: ImgProps)
     const title = cookieData.title;
     const isOpen = cookieData.opened;
     const msgId = cookieData.messageId
-    const link = isRevealPossible ? '/userinfo/revealItem?msgid=' + msgId + '&pageid=' + pageId : '';
+    const link = isRevealPossible ? '/userinfo/revealItem?msgid=' + msgId + '&pageid=' + pageId : '/';
 
     const accessToken = localStorage.getItem('accessToken') as string;
 
@@ -43,18 +36,10 @@ export default function CookieImg (props: ImgProps)
             redirect(link);
             return;
         }
-        const fetchURL = "http://localhost:8080/boards/v1/message/open/" + msgId;
-        fetch(fetchURL, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessToken}`
-            },
-            })
-            .then((response) => response.json())
-            .then((result) => handleOpenMessage(result));
+        openMessageAPI(msgId, accessToken)
+        .then((result) => handleOpenMessage(result));
     }
-    const handleOpenMessage = (result: OpenMessageResult) => {
+    const handleOpenMessage = (result: MsgOpenResult) => {
         redirect(link);
     }
     const animate = (event: any) => {
@@ -78,7 +63,7 @@ export default function CookieImg (props: ImgProps)
                         width={props.size}
                         height={props.size}
                     />
-                    <div className="left-10 text-black"><span className={dokdoFont.className}>{title}</span></div>
+                    <div className="left-10 text-black rounded-md shadow-xl"><span className={dokdoFont.className}>{title}</span></div>
                 </div>
             ) : (
                 <div>
@@ -91,7 +76,7 @@ export default function CookieImg (props: ImgProps)
                             height={props.size}
                         />
                     </div>
-                    <div className="left-1/3 text-black"><span className={dokdoFont.className}>{title}</span></div>
+                    <div className="text-black bg-white rounded-md shadow-xl"><span className={dokdoFont.className}>{title}</span></div>
                 </div>
             )}
         </button>

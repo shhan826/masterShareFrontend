@@ -1,11 +1,11 @@
 'use client'
 
+import { CookieContent } from "@/lib/type";
 import { useRef } from "react";
 import CookieImg from "./cookieImg";
-import { CookieData } from "@/app/userinfo/page";
 
 interface CookieListProps {
-    cookies: Array<CookieData>,
+    cookies: Array<CookieContent>,
     isRevealPossible: boolean,
     pageId: string
 }

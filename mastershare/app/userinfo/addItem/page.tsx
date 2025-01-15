@@ -2,23 +2,16 @@
 
 import CloseX from "@/components/closeX";
 import { redirect } from "next/navigation";
+import { East_Sea_Dokdo } from 'next/font/google'
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { CreateCookieInput, CreateCookieResult } from "@/lib/type";
+import { createMessageAPI } from "@/lib/util";
 
-interface CreateCookieResult {
-    sucess: boolean,
-    data: {
-        messageId: string,
-        sender: string,
-        title: string,
-        opend: boolean,
-        createdAt: string
-    },
-    error: {
-        code: number,
-        message: string
-    }
-}
+const dokdoFont = East_Sea_Dokdo({
+    preload: false,
+    weight: ["400"]
+});
 
 export default function AddItem ()
 {
@@ -35,16 +28,16 @@ export default function AddItem ()
 
     const sampleStringIndex = Math.floor(Math.random() * 6);
     const sampleStringArray = [
-        '좋은 인연을 만나게 될 지도?',
-        '고민하고 있던 일들이 곧 풀릴 예정',
-        '한 해 내내 잔병치레 없는 건강',
-        '베풀면 배로 돌아올 것',
-        '예상치 못한 수익이 들어옴',
-        '좋은 운이 있어, 소중히 사용할 것'
+        '좋은 인연을\n만나게 될 지도?',
+        '고민하고 있던 일들이\n곧 풀릴 예정',
+        '한 해 내내\n잔병치레 없는 건강',
+        '베풀면\n배로 돌아올 것',
+        '예상치 못한\n수익이 들어옴',
+        '좋은 운이 있어,\n소중히 사용할 것'
     ];
 
     useEffect(() => {
-        // url param
+        // 1) url param
         const url = new URL(window.location.href);
         const urlParam = url.searchParams.get('pageId');
         if (urlParam === null) {
@@ -53,7 +46,7 @@ export default function AddItem ()
         } else {
             setPageId(urlParam);
         }
-        // sample string
+        // 2) sample string
         setSampleString(sampleStringArray[sampleStringIndex]);
     }, []);
 
@@ -63,18 +56,16 @@ export default function AddItem ()
         const length = content.length;
         const target = ref.current;
         if (target === null) return;
-        if (length < 30) {
-            target.style.fontSize = "1.25rem";
-        } else if (length < 60) {
-            target.style.fontSize = "1rem";
+        if (length < 60) {
+            target.style.fontSize = "1.87rem";
         } else {
-            target.style.fontSize = "0.75rem";
+            target.style.fontSize = "1.5rem";
         }
     };
-    const onTitleHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const onTitleHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(e.target.value);
     };
-    const onSenderHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const onSenderHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSender(e.target.value);
     };
     const checkInputInfo = () => {
@@ -91,31 +82,23 @@ export default function AddItem ()
         }
         return true;
     }
-    // TODO: 메시지 등록할 때 로그인 상태를 요구할 건지 의사결정 필요
-    const createCookie = () => {
-        if (checkInputInfo() === false) return;
-        const fetchURL = "http://localhost:8080/boards/v1/" + pageId + "/board/message/new";
-        fetch(fetchURL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessToken}`
-            },
-            body: JSON.stringify({
-                sender: sender,
-                title: title,
-                content: content
-            }),
-            })
-            .then((response) => response.json())
-            .then((result) => handleCreateCookie(result));
-    };
     const handleCreateCookie = (result: CreateCookieResult) => {
         if (result !== undefined) {
             alert('정상적으로 쿠키가 등록되었습니다.');
         } 
         history.back();
     }
+    const createCookie = () => {
+        if (checkInputInfo() === false) return;
+
+        const input: CreateCookieInput = {
+            sender: sender,
+            title: title,
+            content: content
+        }
+        createMessageAPI(pageId, input, accessToken)
+        .then((result) => handleCreateCookie(result));
+    };
 
     return(
         <div>
@@ -123,41 +106,41 @@ export default function AddItem ()
                 <CloseX backURL={'/userinfo?pageid=' + pageId}/>
             </div>
             <div className='absolute w-full h-full flex flex-col justify-center items-center'>
+                <br/>
                 <Image
                     aria-hidden
                     src="/mainImage.png"
                     alt="main image"
-                    width={400}
-                    height={400}
+                    width={300}
+                    height={300}
+                    className="opacity-50"
                 />
+                <button className='mx-3 btn btn-primary z-2' onClick={createCookie}>만들기</button>
             </div>
             <div className='absolute flex flex-col justify-center items-center w-full h-screen z-1'>
-                <div className='text-left w-5/6'>
-                    <textarea 
-                        className="text-center resize-none outline-none h-7 text-md" 
+                <div className='text-left w-5/6 mb-1'>
+                    <input
+                        type='text' 
+                        className="text-center text-md p-2 shadow-xl" 
                         maxLength={10} placeholder="제목"
                         onChange={onTitleHandler}>
-                    </textarea> 
-                </div>  
-                <br/>
-                <div className='bg-white w-5/6 h-16 flex flex-col justify-center rounded-md shadow-xl'>
+                    </input> 
+                </div>
+                <div className='bg-white w-5/6 flex flex-col justify-center rounded-md shadow-xl'>
                     <textarea 
                         ref={ref}
-                        className="text-center resize-none w-full outline-none h-7 text-lg" 
+                        className={dokdoFont.className + " text-center resize-none outline-none text-3xl m-2"}
                         maxLength={80} placeholder={sampleString} 
                         onChange={onTextContentHandler}>
                     </textarea> 
                 </div>
-                <br/>
-                <div className='text-right w-5/6'>
-                    <textarea 
-                        className="text-center resize-none outline-none h-7 text-md" 
-                        maxLength={20} placeholder="작성자" 
+                <div className='text-right w-5/6 mt-1'>
+                    <input 
+                        className="text-center text-md p-2 shadow-xl" 
+                        maxLength={10} placeholder="글쓴이 이름" 
                         onChange={onSenderHandler}>
-                    </textarea>
+                    </input>
                 </div>
-                <br/>
-                <button className='mx-3 btn btn-secondary' onClick={createCookie}>만들기</button>
             </div>
         </div>
     );

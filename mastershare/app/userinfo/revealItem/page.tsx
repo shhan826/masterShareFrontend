@@ -5,41 +5,16 @@ import { East_Sea_Dokdo } from 'next/font/google'
 import { useEffect, useRef, useState } from "react";
 import { redirect } from 'next/navigation'
 import CloseX from "@/components/closeX";
+import { MsgDeleteResult, MsgRevealResult } from "@/lib/type";
+import { deleteMessageAPI, getMessageAPI } from "@/lib/util";
 
 const dokdoFont = East_Sea_Dokdo({
     preload: false,
     weight: ["400"]
 });
 
-export interface MsgRevealResult {
-    sucess: boolean,
-    data: {
-        messageId: string,
-        sender: string,
-        title: string,
-        content: string,
-        opened: boolean,
-        createdAt: string
-    },
-    error: {
-        code: number,
-        message: string
-    }
-};
-interface MsgDeleteResult {
-    success: boolean,
-    data: {
-        messageId: string
-    },
-    error : {
-        code: number,
-        message: string
-    }
-}
-
 export default function RevealItem () {
     const msgBoxRef = useRef<HTMLDivElement>(null);
-    const stringDivRef = useRef<HTMLDivElement>(null);
 
     const [msgId, setMsgId] = useState('');
     const [pageId, setPageId] = useState('');
@@ -58,19 +33,11 @@ export default function RevealItem () {
             alert('삭제할 수 없는 내용입니다.');
             return;
         }
-        if (confirm("쿠키를 삭제하시겠습니까?") === false) {
+        if (confirm("해당 포춘 쿠키를 삭제하시겠습니까?") === false) {
             return;
         }
-        const fetchURL = "http://localhost:8080/boards/v1/message/delete/" + msgId;
-        fetch(fetchURL, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessToken}`
-            },
-            })
-            .then((response) => response.json())
-            .then((result) => handleMsgDelete(result));
+        deleteMessageAPI(msgId, accessToken)
+        .then((result) => handleMsgDelete(result));
     };
     const handleMsgDelete = (result: MsgDeleteResult) => {
         if (result.success === false) {
@@ -80,19 +47,9 @@ export default function RevealItem () {
         }
     }
     const handleMsgReveal = (result: MsgRevealResult) => {
-        if (result === undefined) return;
+        if (result?.data === undefined) return;
         setMessageString(result.data.content);
         setWriterNickName(result.data.sender);
-
-        const stringDiv = stringDivRef.current;
-        if (stringDiv === null) return;
-        if (messageString.length < 30) {
-            stringDiv.style.fontSize = "1.5rem";
-        } else if (messageString.length < 60) {
-            stringDiv.style.fontSize = "1.5rem";
-        } else {
-            stringDiv.style.fontSize = "1rem";
-        }
     };
 
     useEffect(() => {
@@ -118,22 +75,13 @@ export default function RevealItem () {
             }
         }
     }, []);
-    // TODO: 쿠키 메시지를 보는 행위는 권한 상관 없이 할 수 있어야 함 (open 행동과는 별도)
     useEffect(() => {
         if (msgId === '-1') {
             setMessageString('새해 복 많이 받으세요!');
             setWriterNickName('관리자');
         } else if (msgId !== '') {
-            const fetchURL = "http://localhost:8080/boards/v1/message/" + msgId;
-            fetch(fetchURL, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${accessToken}`
-                },
-                })
-                .then((response) => response.json())
-                .then((result) => handleMsgReveal(result));
+            getMessageAPI(msgId, accessToken)
+            .then((result) => handleMsgReveal(result));
         }
     }, [msgId])
 
@@ -176,8 +124,8 @@ export default function RevealItem () {
                 </div>
             </div>
             <div ref={msgBoxRef} className='absolute flex flex-col justify-center items-center w-full h-screen z-1' style={{opacity: 0}}>
-                <div className='bg-white w-5/6 h-16 flex flex-col justify-center rounded-md shadow-xl'>
-                    <div ref={stringDivRef} className="text-center w-full h-11 text-3xl">
+                <div className='bg-white w-5/6 flex flex-col justify-center rounded-md shadow-xl p-3'>
+                    <div className="text-center text-3xl leading-7 break-keep">
                         <span className={dokdoFont.className}>{messageString}</span>
                     </div> 
                 </div>
