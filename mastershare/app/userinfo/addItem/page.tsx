@@ -20,7 +20,7 @@ export default function AddItem ()
 
     const accessToken = localStorage.getItem('accessToken') as string;
 
-    const [sender, setSender] = useState('익명');
+    const [sender, setSender] = useState('익명의 글쓴이');
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [pageId, setPageId] = useState('');
@@ -35,6 +35,7 @@ export default function AddItem ()
         '예상치 못한\n수익이 들어옴',
         '좋은 운이 있어,\n소중히 사용할 것'
     ];
+    const backURL = '/userinfo?pageid=' + pageId;
 
     useEffect(() => {
         // 1) url param
@@ -56,7 +57,7 @@ export default function AddItem ()
         const length = content.length;
         const target = ref.current;
         if (target === null) return;
-        if (length < 60) {
+        if (length < 50) {
             target.style.fontSize = "1.87rem";
         } else {
             target.style.fontSize = "1.5rem";
@@ -70,15 +71,8 @@ export default function AddItem ()
     };
     const checkInputInfo = () => {
         if (content === '') {
-            alert('내용을 입력해주세요');
+            alert('내용을 한 글자 이상 입력해주세요.');
             return false;
-        }
-        if (title === '') {
-            if (content.length > 5) {
-                setTitle(content.substring(0, 5));
-            } else {
-                setTitle(content);
-            }
         }
         return true;
     }
@@ -86,14 +80,18 @@ export default function AddItem ()
         if (result !== undefined) {
             alert('정상적으로 쿠키가 등록되었습니다.');
         } 
-        history.back();
+        redirect(backURL);
     }
     const createCookie = () => {
         if (checkInputInfo() === false) return;
-
+        let adjustedTitle = title;
+        let adjustedSender = sender;
+        if (title === '') {
+            adjustedTitle = (content.length > 10) ? (content.substring(0, 8) + "..") : content;
+        }
         const input: CreateCookieInput = {
-            sender: sender,
-            title: title,
+            sender: adjustedSender,
+            title: adjustedTitle,
             content: content
         }
         createMessageAPI(pageId, input, accessToken)
@@ -103,7 +101,7 @@ export default function AddItem ()
     return(
         <div>
             <div className='absolute w-full text-right z-2'>
-                <CloseX backURL={'/userinfo?pageid=' + pageId}/>
+                <CloseX backURL={backURL}/>
             </div>
             <div className='absolute w-full h-full flex flex-col justify-center items-center'>
                 <br/>
@@ -121,7 +119,7 @@ export default function AddItem ()
                 <div className='text-left w-5/6 mb-1'>
                     <input
                         type='text' 
-                        className="text-center text-md p-2 shadow-xl" 
+                        className={dokdoFont.className + " text-center text-xl p-2 shadow-xl"}
                         maxLength={10} placeholder="제목"
                         onChange={onTitleHandler}>
                     </input> 
@@ -130,14 +128,14 @@ export default function AddItem ()
                     <textarea 
                         ref={ref}
                         className={dokdoFont.className + " text-center resize-none outline-none text-3xl m-2"}
-                        maxLength={80} placeholder={sampleString} 
+                        maxLength={65} placeholder={sampleString} 
                         onChange={onTextContentHandler}>
                     </textarea> 
                 </div>
                 <div className='text-right w-5/6 mt-1'>
                     <input 
                         className="text-center text-md p-2 shadow-xl" 
-                        maxLength={10} placeholder="글쓴이 이름" 
+                        maxLength={10} placeholder="- 글쓴이 이름" 
                         onChange={onSenderHandler}>
                     </input>
                 </div>

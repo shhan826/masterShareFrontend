@@ -94,6 +94,12 @@ interface MsgOpenData {
         createdAt: string
     }
 };
+interface RefreshTokenData {
+    data: {
+        accessToken: string,
+        refreshToken: string
+    }
+};
 
 export type JoinResult = ResultBase & JoinData;
 export type LoginResult = ResultBase & LoginData;
@@ -103,6 +109,7 @@ export type MsgDeleteResult = ResultBase & MsgDeleteData;
 export type MsgListResult = ResultBase & MsgListData;
 export type BoardResult = ResultBase & BoardData;
 export type MsgOpenResult = ResultBase & MsgOpenData;
+export type RefreshTokenResult = ResultBase & RefreshTokenData;
 
 export interface JoinInput {
     username: string,

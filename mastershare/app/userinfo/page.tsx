@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from 'next/link'
+import Image from "next/image";
 import { redirect } from 'next/navigation'
 import CookieList from "@/components/cookieList";
 import { BoardResult, CookieContent, MsgListResult, MsgOpenResult } from "@/lib/type";
@@ -105,18 +106,24 @@ export default function UserInfo() {
     }
 
     // 네비게이션 추가해서 로그아웃, 내역 보기 등 메뉴 구겨담아야 할 듯
+    // Carousel 방식으로 개선하면 더 좋을 듯
     return(
-        <div className="grid grid-rows-[80px_1fr_80px] items-center justify-items-center min-h-screen p-6 pb-10 gap-1">
+        <div className="grid grid-rows-[50px_1fr_80px] items-center justify-items-center min-h-screen p-6 pb-10 gap-1">
             <header className="row-start-1 gap-3 items-center justify-center text-center pt-10">
                 <p className='font-bold text-lg'>{name}님의 포춘 쿠키</p>
                 { isMyPage ? (
-                    <p>원하는 쿠키를 선택하여 열어보세요!</p>
+                    <div>
+                        <p>
+                            원하는 쿠키를 열어보세요!&nbsp;
+                            (<button type="button" className="underline" onClick={openRandomMessage}>무작위 열기</button>)
+                        </p>
+                    </div>
                 ) : (
                     <p>{name}님에게 쿠키로 덕담을 남겨보세요!</p>
                 )}
             </header>
             <div className="flex flex-col row-start-2 items-center w-full h-5/6">
-                <CookieList cookies={cookieArray} isRevealPossible={isMyPage} pageId={pageId}/>
+                <CookieList cookies={cookieArray} pageId={pageId}/>
             </div>
             <footer className="row-start-3 flex flex-col gap-3 items-center justify-center">
                 <div className="flex flex-row gap-3">
@@ -126,16 +133,28 @@ export default function UserInfo() {
                 </div>
                 { isMyPage ? (
                     <div className="flex flex-row gap-3">
-                        <button type="button" className="btn btn-warning" onClick={openRandomMessage}>무작위 열기</button>
-                        <button type="button" className="btn btn-light" onClick={share}>공유하기</button>
+                        <button type="button" className="btn btn-warning" onClick={share}>
+                            <Image
+                                src="/share.svg"
+                                alt="share"
+                                width={20}
+                                height={20}
+                                className="inline-block"
+                            />
+                            <span>&nbsp;&nbsp;공유하기</span>
+                        </button>
+                        { userId && <button className="btn btn-light" style={{color: "gray"}} onClick={logout}>로그아웃</button> }
                     </div>
                 ) : (
                     <div className="flex flex-row gap-3">
                         <Link href={'/userinfo/addItem?pageId=' + pageId}><button type="button" className="btn btn-warning">쿠키 만들어주기</button></Link>
-                        <Link href="/login"><button type="button" className="btn btn-light">로그인</button></Link>
+                        { userId ? (
+                            <Link href="/login"><button type="button" className="btn btn-light">내 쿠키함 가기</button></Link> 
+                            ) : (
+                            <Link href="/login"><button type="button" className="btn btn-light">로그인</button></Link> 
+                        )}
                     </div>
                 )}
-                { userId && <button onClick={logout}>로그아웃</button> }
             </footer>
         </div>
     );

@@ -1,4 +1,4 @@
-import { BoardResult, CreateCookieInput, CreateCookieResult, JoinInput, JoinResult, LoginInput, LoginResult, MsgDeleteResult, MsgListResult, MsgOpenResult, MsgRevealResult } from "./type";
+import { BoardResult, CreateCookieInput, CreateCookieResult, JoinInput, JoinResult, LoginInput, LoginResult, MsgDeleteResult, MsgListResult, MsgOpenResult, MsgRevealResult, RefreshTokenResult } from "./type";
 
 // 로털 테스트용 URL Origin. 배포 후 변경 필요
 const originURL = "http://localhost:8080";
@@ -9,6 +9,13 @@ const noResponseFailResult = {
         message: "Unknown fetch response error."
     }  
 };
+const authorizationFailResult = {
+    success: false,
+    error: {
+        code: 401,
+        message: "Authorization error."
+    }
+}
 
 export async function joinAPI(input: JoinInput): Promise<JoinResult> {
     const url = originURL + "/auth/v1/join"
@@ -125,6 +132,23 @@ export async function openMessageAPI(msgId: string, accessToken: string): Promis
     });
     if (response.ok) {
         return response.json();
+    } else if (response.status === 401) {
+        return authorizationFailResult as MsgOpenResult;
     }
     return noResponseFailResult as MsgOpenResult;
 };
+
+export async function refreshTokenAPI(accessToken: string, refreshToken: string): Promise<RefreshTokenResult> {
+    const url = originURL + "/auth/v1/token/refresh?refreshToken=" + refreshToken;
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}`
+        }
+    });
+    if (response.ok) {
+        return response.json();
+    }
+    return noResponseFailResult as RefreshTokenResult;
+}

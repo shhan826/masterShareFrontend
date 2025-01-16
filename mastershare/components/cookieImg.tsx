@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { redirect } from 'next/navigation'
 import { East_Sea_Dokdo } from 'next/font/google'
-import { CookieContent, MsgOpenResult } from "@/lib/type";
-import { openMessageAPI } from "@/lib/util";
+import { CookieContent, MsgOpenResult, RefreshTokenResult } from "@/lib/type";
+import { openMessageAPI, refreshTokenAPI } from "@/lib/util";
 
 const dokdoFont = East_Sea_Dokdo({
     preload: false,
@@ -14,34 +14,67 @@ const dokdoFont = East_Sea_Dokdo({
 interface ImgProps {
     cookieData: CookieContent,
     size: number,
-    isRevealPossible: boolean,
     pageId: string
 }
 
 export default function CookieImg (props: ImgProps)
 {
-    const {cookieData, isRevealPossible, pageId} = props;
+    const {cookieData, pageId} = props;
     if (props.cookieData === undefined) {
         return <></>;
     }
     const title = cookieData.title;
     const isOpen = cookieData.opened;
     const msgId = cookieData.messageId
-    const link = isRevealPossible ? '/userinfo/revealItem?msgid=' + msgId + '&pageid=' + pageId : '/';
+    const link = '/userinfo/revealItem?msgid=' + msgId + '&pageid=' + pageId;
 
     const accessToken = localStorage.getItem('accessToken') as string;
+    const refreshToken = localStorage.getItem('refreshToken') as string;
+    const userId = localStorage.getItem("userId");
 
     const openMessage = () => {
-        if (msgId === '-1') {
+        if (msgId === '-1' || isOpen === true) {
             redirect(link);
+            return;
+        }
+        if (userId !== pageId) {
+            alert('아직 열리지 않은 쿠키는 주인만 확인할 수 있습니다.');
             return;
         }
         openMessageAPI(msgId, accessToken)
         .then((result) => handleOpenMessage(result));
-    }
+    };
     const handleOpenMessage = (result: MsgOpenResult) => {
-        redirect(link);
-    }
+        if (result.success === false && result.error.code === 401) {
+            refreshTokenAPI(accessToken, refreshToken)
+            .then((result) => handleRefreshTokenOnOpenMessage(result));
+        } else if (result.success === true) {
+            redirect(link);
+        } 
+    };
+    const handleRefreshTokenOnOpenMessage = (result: RefreshTokenResult) => {
+        if (result.success) {
+            const newAccessToken = result.data.accessToken;
+            const newRefreshToken = result.data.refreshToken;
+            localStorage.setItem('accessToken', newAccessToken);
+            localStorage.setItem('refreshToken', newRefreshToken);
+            openMessageAPI(msgId, newAccessToken)
+            .then((result) => {
+                if (result.success) {
+                    redirect(link);
+                } else {
+                    alert('잘못된 접근입니다.');
+                }
+            });
+        } else {
+            alert('로그인 정보가 만료되었습니다. 다시 로그인해주세요.');
+            localStorage.removeItem("userId");
+            localStorage.removeItem("nickName");
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            redirect('/login');
+        }
+    };
     const animate = (event: any) => {
         const target = event.target.parentElement;
         if (target.className === 'animateTarget') {
@@ -63,7 +96,7 @@ export default function CookieImg (props: ImgProps)
                         width={props.size}
                         height={props.size}
                     />
-                    <div className="left-10 text-black rounded-md shadow-xl"><span className={dokdoFont.className}>{title}</span></div>
+                    <div className="text-black bg-white rounded-md shadow-xl"><span className={dokdoFont.className}>{title}</span></div>
                 </div>
             ) : (
                 <div>

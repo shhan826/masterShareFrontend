@@ -5,8 +5,8 @@ import { East_Sea_Dokdo } from 'next/font/google'
 import { useEffect, useRef, useState } from "react";
 import { redirect } from 'next/navigation'
 import CloseX from "@/components/closeX";
-import { MsgDeleteResult, MsgRevealResult } from "@/lib/type";
-import { deleteMessageAPI, getMessageAPI } from "@/lib/util";
+import { MsgDeleteResult, MsgRevealResult, RefreshTokenResult } from "@/lib/type";
+import { deleteMessageAPI, getMessageAPI, refreshTokenAPI } from "@/lib/util";
 
 const dokdoFont = East_Sea_Dokdo({
     preload: false,
@@ -22,6 +22,10 @@ export default function RevealItem () {
     const [writerNickName, setWriterNickName] = useState('');
 
     const accessToken = localStorage.getItem('accessToken') as string;
+    const refreshToken = localStorage.getItem('refreshToken') as string;
+    const userId = localStorage.getItem("userId");
+
+    const isMyPage = (userId === pageId);
     const backURL = '/userinfo?pageid=' + pageId;
 
     const onShareMessage = async () => {
@@ -40,12 +44,36 @@ export default function RevealItem () {
         .then((result) => handleMsgDelete(result));
     };
     const handleMsgDelete = (result: MsgDeleteResult) => {
-        if (result.success === false) {
-            alert('삭제할 수 없는 내용입니다.');
-        } else {
+        if (result.success === false && result.error.code === 401) {
+            refreshTokenAPI(accessToken, refreshToken)
+            .then((result) => handleRefreshTokenOnMsgDelete(result));
+        } else if (result.success === true) {
             redirect(backURL);
+        } 
+    };
+    const handleRefreshTokenOnMsgDelete = (result: RefreshTokenResult) => {
+        if (result.success) {
+            const newAccessToken = result.data.accessToken;
+            const newRefreshToken = result.data.refreshToken;
+            localStorage.setItem('accessToken', newAccessToken);
+            localStorage.setItem('refreshToken', newRefreshToken);
+            deleteMessageAPI(msgId, newAccessToken)
+            .then((result) => {
+                if (result.success) {
+                    redirect(backURL);
+                } else {
+                    alert('잘못된 접근입니다.');
+                }
+            });
+        } else {
+            alert('로그인 정보가 만료되었습니다. 다시 로그인해주세요.');
+            localStorage.removeItem("userId");
+            localStorage.removeItem("nickName");
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            redirect('/login');
         }
-    }
+    };
     const handleMsgReveal = (result: MsgRevealResult) => {
         if (result?.data === undefined) return;
         setMessageString(result.data.content);
@@ -85,6 +113,7 @@ export default function RevealItem () {
         }
     }, [msgId])
 
+    // 처음 열 때는 클릭해서 쿠키를 부수는 게임적인 요소 추가하면 재미있을듯
     return(
         <div>
             <div className='absolute w-full text-right z-2'>
@@ -111,16 +140,18 @@ export default function RevealItem () {
                         />
                         <span>&nbsp;&nbsp;공유하기</span>
                     </button>
-                    <button className='mx-2 btn btn-light' onClick={onDeleteMessage}>
-                        <Image
-                            src="/delete.svg"
-                            alt="delete"
-                            width={20}
-                            height={20}
-                            className="inline-block"
-                        />
-                        <span>&nbsp;&nbsp;버리기</span>
-                    </button>
+                    { isMyPage && 
+                        <button className='mx-2 btn btn-light' onClick={onDeleteMessage}>
+                            <Image
+                                src="/delete.svg"
+                                alt="delete"
+                                width={20}
+                                height={20}
+                                className="inline-block"
+                            />
+                            <span>&nbsp;&nbsp;버리기</span>
+                        </button>
+                    }
                 </div>
             </div>
             <div ref={msgBoxRef} className='absolute flex flex-col justify-center items-center w-full h-screen z-1' style={{opacity: 0}}>
