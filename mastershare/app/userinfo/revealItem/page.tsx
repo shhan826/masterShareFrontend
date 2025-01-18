@@ -21,9 +21,14 @@ export default function RevealItem () {
     const [messageString, setMessageString] = useState('');
     const [writerNickName, setWriterNickName] = useState('');
 
-    const accessToken = localStorage.getItem('accessToken') as string;
-    const refreshToken = localStorage.getItem('refreshToken') as string;
-    const userId = localStorage.getItem("userId");
+    let accessToken = '';
+    let refreshToken = '';
+    let userId = '';
+    if (typeof window !== 'undefined') {
+        accessToken = localStorage.getItem('accessToken') || '';
+        refreshToken = localStorage.getItem('refreshToken') || '';
+        userId = localStorage.getItem("userId") || '';
+    }
 
     const isMyPage = (userId === pageId);
     const backURL = '/userinfo?pageid=' + pageId;
@@ -55,8 +60,10 @@ export default function RevealItem () {
         if (result.success) {
             const newAccessToken = result.data.accessToken;
             const newRefreshToken = result.data.refreshToken;
-            localStorage.setItem('accessToken', newAccessToken);
-            localStorage.setItem('refreshToken', newRefreshToken);
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('accessToken', newAccessToken);
+                localStorage.setItem('refreshToken', newRefreshToken);
+            }
             deleteMessageAPI(msgId, newAccessToken)
             .then((result) => {
                 if (result.success) {
@@ -67,10 +74,12 @@ export default function RevealItem () {
             });
         } else {
             alert('로그인 정보가 만료되었습니다. 다시 로그인해주세요.');
-            localStorage.removeItem("userId");
-            localStorage.removeItem("nickName");
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("refreshToken");
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem("userId");
+                localStorage.removeItem("nickName");
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+            }
             redirect('/login');
         }
     };
@@ -111,7 +120,7 @@ export default function RevealItem () {
             getMessageAPI(msgId, accessToken)
             .then((result) => handleMsgReveal(result));
         }
-    }, [msgId])
+    }, [msgId, accessToken])
 
     // 처음 열 때는 클릭해서 쿠키를 부수는 게임적인 요소 추가하면 재미있을듯
     return(

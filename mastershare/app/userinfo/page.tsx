@@ -5,8 +5,8 @@ import Link from 'next/link'
 import Image from "next/image";
 import { redirect } from 'next/navigation'
 import CookieList from "@/components/cookieList";
-import { BoardResult, CookieContent, MsgListResult, MsgOpenResult } from "@/lib/type";
-import { getBoardAPI, getMessageListAPI, openMessageAPI } from "@/lib/util";
+import { BoardResult, CookieContent, MsgListResult, MsgOpenResult, RefreshTokenResult } from "@/lib/type";
+import { getBoardAPI, getMessageListAPI, openMessageAPI, refreshTokenAPI } from "@/lib/util";
 
 export default function UserInfo() {
     const [pageId, setPageId] = useState('');
@@ -25,8 +25,14 @@ export default function UserInfo() {
         createdAt: ''
     }]);
 
-    const accessToken = localStorage.getItem('accessToken') as string;
-    const userId = localStorage.getItem("userId");
+    let accessToken = '';
+    let refreshToken = '';
+    let userId = '';
+    if (typeof window !== 'undefined') {
+        accessToken = localStorage.getItem('accessToken') || '';
+        refreshToken = localStorage.getItem('refreshToken') || '';
+        userId = localStorage.getItem("userId") || '';
+    }
 
     const name = (nickName === '') ? '회원' : nickName;
     const isMyPage = (userId === pageId);
@@ -72,10 +78,12 @@ export default function UserInfo() {
         setNextPage(resultData.nextPage);
     };
     const logout = () => {
-        localStorage.removeItem("userId");
-        localStorage.removeItem("nickName");
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem("userId");
+            localStorage.removeItem("nickName");
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+        }
         alert('로그아웃 되었습니다.');
         redirect('/');
     };
@@ -89,21 +97,53 @@ export default function UserInfo() {
             return;
         }
         openMessageAPI(randomMsgId, accessToken)
-        .then((result) => handleOpenMessage(result));
+        .then((result) => handleOpenRandomMessage(result));
     };
-    const handleOpenMessage = (result: MsgOpenResult) => {
-        redirect(randomMsgLink);
-    }
+    const handleOpenRandomMessage = (result: MsgOpenResult) => {
+        if (result.success === false && result.error.code === 401) {
+            refreshTokenAPI(accessToken, refreshToken)
+            .then((result) => handleRefreshTokenOnOpenMessage(result));
+        } else if (result.success === true) {
+            redirect(randomMsgLink);
+        }
+    };
+    const handleRefreshTokenOnOpenMessage = (result: RefreshTokenResult) => {
+        if (result.success) {
+            const newAccessToken = result.data.accessToken;
+            const newRefreshToken = result.data.refreshToken;
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('accessToken', newAccessToken);
+                localStorage.setItem('refreshToken', newRefreshToken);
+            }
+            openMessageAPI(randomMsgId, newAccessToken)
+            .then((result) => {
+                if (result.success) {
+                    redirect(randomMsgLink);
+                } else {
+                    alert('잘못된 접근입니다.');
+                }
+            });
+        } else {
+            alert('로그인 정보가 만료되었습니다. 다시 로그인해주세요.');
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem("userId");
+                localStorage.removeItem("nickName");
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+            }
+            redirect('/login');
+        }
+    };
     const movePrevPage = () => {
         if (hasPrev === false) return;
         getMessageListAPI(pageId, prevPage, 6)
         .then((result) => handleMsgListResult(result));
-    }
+    };
     const moveNextPage = () => {
         if (hasNext === false) return;
         getMessageListAPI(pageId, nextPage, 6)
         .then((result) => handleMsgListResult(result));
-    }
+    };
 
     // 네비게이션 추가해서 로그아웃, 내역 보기 등 메뉴 구겨담아야 할 듯
     // Carousel 방식으로 개선하면 더 좋을 듯

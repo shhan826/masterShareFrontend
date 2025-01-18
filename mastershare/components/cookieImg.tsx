@@ -28,9 +28,14 @@ export default function CookieImg (props: ImgProps)
     const msgId = cookieData.messageId
     const link = '/userinfo/revealItem?msgid=' + msgId + '&pageid=' + pageId;
 
-    const accessToken = localStorage.getItem('accessToken') as string;
-    const refreshToken = localStorage.getItem('refreshToken') as string;
-    const userId = localStorage.getItem("userId");
+    let accessToken = '';
+    let refreshToken = '';
+    let userId = '';
+    if (typeof window !== 'undefined') {
+        accessToken = localStorage.getItem('accessToken') || '';
+        refreshToken = localStorage.getItem('refreshToken') || '';
+        userId = localStorage.getItem("userId") || '';
+    }
 
     const openMessage = () => {
         if (msgId === '-1' || isOpen === true) {
@@ -56,8 +61,10 @@ export default function CookieImg (props: ImgProps)
         if (result.success) {
             const newAccessToken = result.data.accessToken;
             const newRefreshToken = result.data.refreshToken;
-            localStorage.setItem('accessToken', newAccessToken);
-            localStorage.setItem('refreshToken', newRefreshToken);
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('accessToken', newAccessToken);
+                localStorage.setItem('refreshToken', newRefreshToken);
+            }
             openMessageAPI(msgId, newAccessToken)
             .then((result) => {
                 if (result.success) {
@@ -68,16 +75,19 @@ export default function CookieImg (props: ImgProps)
             });
         } else {
             alert('로그인 정보가 만료되었습니다. 다시 로그인해주세요.');
-            localStorage.removeItem("userId");
-            localStorage.removeItem("nickName");
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("refreshToken");
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem("userId");
+                localStorage.removeItem("nickName");
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+            }
             redirect('/login');
         }
     };
-    const animate = (event: any) => {
-        const target = event.target.parentElement;
-        if (target.className === 'animateTarget') {
+    const animate = (event: React.MouseEvent<HTMLDivElement>) => {
+        const targetChild = event.target;
+        const target = (targetChild as Element).parentElement;
+        if (target && target.className === 'animateTarget') {
             target.className = 'rotate_animation';
             setTimeout(() => {
                 target.className = 'animateTarget';

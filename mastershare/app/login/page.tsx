@@ -10,14 +10,16 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [id, setId] = useState('');
 
-    const userId = localStorage.getItem('userId');
-
+    let userId = '';
+    if (typeof window !== 'undefined') {
+        userId = localStorage.getItem('userId') || '';
+    }
     // 이미 로그인 되어 있는 경우, userinfo로 바로 이동
     useEffect(() => {
         if (userId !== null && userId !== '') {
             redirect('/userinfo?pageid=' + userId);
         }
-    }, []);
+    }, [userId]);
 
     const onPasswordHandler = (event: React.FormEvent<HTMLInputElement>) => {
         setPassword(event.currentTarget.value);
@@ -44,10 +46,12 @@ export default function Login() {
         const resultData = result.data;
         if (result.success && resultData) {
             const userInfo = resultData.userInfo;
-            localStorage.setItem("userId", userInfo.userId);
-            localStorage.setItem("nickName", userInfo.nickname);
-            localStorage.setItem("accessToken", resultData.accessToken);
-            localStorage.setItem("refreshToken", resultData.refreshToken);
+            if (typeof window !== 'undefined') {
+                localStorage.setItem("userId", userInfo.userId);
+                localStorage.setItem("nickName", userInfo.nickname);
+                localStorage.setItem("accessToken", resultData.accessToken);
+                localStorage.setItem("refreshToken", resultData.refreshToken);
+            }
             redirect('/userinfo?pageid=' + userInfo.userId);
         } else {
             alert('아이디, 혹은 비밀번호를 다시 한 번 확인해주세요.');

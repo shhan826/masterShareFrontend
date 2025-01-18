@@ -5,12 +5,13 @@ import { redirect } from 'next/navigation'
 import { JoinInput, JoinResult } from "@/lib/type";
 import { joinAPI } from "@/lib/util";
 
+// 회원 정보 수정 페이지도 만들면 좋을 듯
 export default function Join() {
     const [id, setId] = useState('');
     const [password, setPassword] = useState('');
     const [nickName, setNickName] = useState('');
     const [email, setEmail] = useState('');
-
+    
     const onIdHandler = (event: React.FormEvent<HTMLInputElement>) => {
         setId(event.currentTarget.value);
     }

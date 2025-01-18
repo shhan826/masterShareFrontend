@@ -47,13 +47,12 @@ export async function loginAPI(input: LoginInput): Promise<LoginResult> {
     return noResponseFailResult as LoginResult;
 };
 
-export async function createMessageAPI(pageId: string, input: CreateCookieInput, accessToken: string): Promise<CreateCookieResult> {
+export async function createMessageAPI(pageId: string, input: CreateCookieInput): Promise<CreateCookieResult> {
     const url = originURL + "/boards/v1/" + pageId + "/board/message/new";
     const response = await fetch(url, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`
         },
         body: JSON.stringify(input)
     });

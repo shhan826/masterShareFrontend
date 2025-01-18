@@ -18,15 +18,12 @@ export default function AddItem ()
     // TODO: 폰트, 이미지 등 다양한 옵션으로 쿠키를 설정할 수 있게 하면 재밌을 듯
     const ref = useRef<HTMLTextAreaElement>(null);
 
-    const accessToken = localStorage.getItem('accessToken') as string;
-
     const [sender, setSender] = useState('익명의 글쓴이');
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [pageId, setPageId] = useState('');
     const [sampleString, setSampleString] = useState('');
 
-    const sampleStringIndex = Math.floor(Math.random() * 6);
     const sampleStringArray = [
         '좋은 인연을\n만나게 될 지도?',
         '고민하고 있던 일들이\n곧 풀릴 예정',
@@ -48,6 +45,7 @@ export default function AddItem ()
             setPageId(urlParam);
         }
         // 2) sample string
+        const sampleStringIndex = Math.floor(Math.random() * 6);
         setSampleString(sampleStringArray[sampleStringIndex]);
     }, []);
 
@@ -85,16 +83,15 @@ export default function AddItem ()
     const createCookie = () => {
         if (checkInputInfo() === false) return;
         let adjustedTitle = title;
-        let adjustedSender = sender;
         if (title === '') {
             adjustedTitle = (content.length > 10) ? (content.substring(0, 8) + "..") : content;
         }
         const input: CreateCookieInput = {
-            sender: adjustedSender,
+            sender: sender,
             title: adjustedTitle,
             content: content
         }
-        createMessageAPI(pageId, input, accessToken)
+        createMessageAPI(pageId, input)
         .then((result) => handleCreateCookie(result));
     };
 
