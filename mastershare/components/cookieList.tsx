@@ -47,17 +47,17 @@ export default function CookieList (props: CookieListProps)
         <div ref={ref} className="w-full h-full flex flex-col gap-3 justify-center">
             <div className="flex justify-center gap-3">
                 {cookieArray1.map((cookie) => (      
-                    <CookieImg key={cookie.messageId} cookieData={cookie} size={imgSize} pageId={pageId}/>
+                    <CookieImg key={cookie.messageKey} cookieData={cookie} size={imgSize} pageId={pageId}/>
                 ))}
             </div>
             <div className="flex justify-center gap-3">
                 {cookieArray2.map((cookie) => (      
-                    <CookieImg key={cookie.messageId} cookieData={cookie} size={imgSize} pageId={pageId}/>
+                    <CookieImg key={cookie.messageKey} cookieData={cookie} size={imgSize} pageId={pageId}/>
                 ))}
             </div>
             <div className="flex justify-center gap-3">
                 {cookieArray3.map((cookie) => (      
-                    <CookieImg key={cookie.messageId} cookieData={cookie} size={imgSize} pageId={pageId}/>
+                    <CookieImg key={cookie.messageKey} cookieData={cookie} size={imgSize} pageId={pageId}/>
                 ))}
             </div>
         </div>

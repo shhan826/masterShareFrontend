@@ -47,12 +47,12 @@ export default function Login() {
         if (result.success && resultData) {
             const userInfo = resultData.userInfo;
             if (typeof window !== 'undefined') {
-                localStorage.setItem("userId", userInfo.userId);
+                localStorage.setItem("userId", userInfo.userKey);
                 localStorage.setItem("nickName", userInfo.nickname);
                 localStorage.setItem("accessToken", resultData.accessToken);
                 localStorage.setItem("refreshToken", resultData.refreshToken);
             }
-            redirect('/userinfo?pageid=' + userInfo.userId);
+            redirect('/userinfo?pageid=' + userInfo.userKey);
         } else {
             alert('아이디, 혹은 비밀번호를 다시 한 번 확인해주세요.');
         }

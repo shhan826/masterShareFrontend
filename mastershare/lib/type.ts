@@ -9,7 +9,7 @@ interface ResultBase {
 interface JoinData {
     data: {
         userInfo: {
-            userId: string,
+            userKey: string,
             username: string,
             email: string,
             nickname: string
@@ -21,7 +21,7 @@ interface JoinData {
 interface LoginData {
     data: {
         userInfo: {
-            userId: string,
+            userKey: string,
             username: string,
             email: string,
             nickname: string
@@ -32,7 +32,7 @@ interface LoginData {
 };
 interface CreateCookieData {
     data: {
-        messageId: string,
+        messageKey: string,
         sender: string,
         title: string,
         opend: boolean,
@@ -41,7 +41,7 @@ interface CreateCookieData {
 };
 interface MsgRevealData {
     data: {
-        messageId: string,
+        messageKey: string,
         sender: string,
         title: string,
         content: string,
@@ -51,11 +51,11 @@ interface MsgRevealData {
 };
 interface MsgDeleteData {
     data: {
-        messageId: string
+        messageKey: string
     }
 };
 export interface CookieContent {
-    messageId: string,
+    messageKey: string,
     sender: string,
     title: string,
     opened: boolean,
@@ -86,7 +86,7 @@ interface BoardData {
 };
 interface MsgOpenData {
     data: {
-        messageId: string,
+        messageKey: string,
         sender: string,
         title: string,
         content: string,

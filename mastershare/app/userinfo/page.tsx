@@ -18,7 +18,7 @@ export default function UserInfo() {
     const [nextPage, setNextPage] = useState(2);
     const [lastPage, setLastPage] = useState(1);
     const [cookieArray, setCookieArray] = useState<CookieContent[]>([{
-        messageId: '-1',
+        messageKey: '-1',
         sender: '관리자', 
         title: '기본제공쿠키', 
         opened: false,
@@ -37,7 +37,7 @@ export default function UserInfo() {
     const name = (nickName === '') ? '회원' : nickName;
     const isMyPage = (userId === pageId);
     const randomMsgIndex = Math.floor(Math.random() * cookieArray.length);
-    const randomMsgId = cookieArray[randomMsgIndex].messageId;
+    const randomMsgId = cookieArray[randomMsgIndex].messageKey;
     const randomMsgLink = '/userinfo/revealItem?msgid=' + randomMsgId + '&pageid=' + pageId;
 
     useEffect(() => {

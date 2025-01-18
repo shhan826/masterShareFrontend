@@ -47,7 +47,7 @@ export default function Join() {
         if (result.success && resultData) {
             alert('가입이 완료되었습니다.');
             const userInfo = resultData.userInfo;
-            localStorage.setItem("userId", userInfo.userId);
+            localStorage.setItem("userId", userInfo.userKey);
             localStorage.setItem("nickName", userInfo.nickname);
             localStorage.setItem("accessToken", resultData.accessToken);
             localStorage.setItem("refreshToken", resultData.refreshToken);
