@@ -1,7 +1,7 @@
 import { BoardResult, CreateCookieInput, CreateCookieResult, JoinInput, JoinResult, LoginInput, LoginResult, MsgDeleteResult, MsgListResult, MsgOpenResult, MsgRevealResult, RefreshTokenResult } from "./type";
 
 // const originURL = "http://localhost:8080";
-const originURL = "http://www.lettergramapi.store";
+const originURL = "https://www.lettergramapi.store";
 const noResponseFailResult = {
     success: false,
     error: {
