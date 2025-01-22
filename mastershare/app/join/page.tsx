@@ -75,7 +75,7 @@ export default function Join() {
 
     return(
         <div>
-            <div className='flex flex-col justify-center items-center w-full h-dvh'>
+            <div className='flex flex-col justify-center items-center w-full min-h-dvh'>
                 <h3 className='font-bold'>회원 가입</h3><br/>
                 <form className='flex flex-col'>
                     <label>아이디: </label>
