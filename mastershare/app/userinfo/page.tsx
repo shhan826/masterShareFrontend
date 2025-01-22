@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from 'next/link'
 import Image from "next/image";
+import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { redirect, useSearchParams } from 'next/navigation'
 import CookieList from "@/components/cookieList";
@@ -13,6 +14,34 @@ const pretendardBold = localFont({
     src: "../fonts/Pretendard-Bold.woff",
     display: 'swap',
   });
+
+const title = "포춘 쿠기";
+const description = "친구에게 쿠키로 덕담을 남겨주세요!";
+export const metadata: Metadata = {
+  title: title,
+  description: description,
+  openGraph: {
+    title: title,
+    description: description,
+    url: 'https://lettergram.store',
+    images: [
+      {
+        url: '/thumbnail.png',
+        alt: 'fortune cookie'
+      }
+    ]
+  },
+  twitter: {
+    title: title,
+    description: description,
+    images: [
+      {
+        url: '/thumbnail.png',
+        alt: 'fortune cookie'
+      }
+    ]
+  }
+};
 
 export default function UserInfo() {
     const [nickName, setNickName] = useState('');
