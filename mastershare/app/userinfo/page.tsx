@@ -148,7 +148,7 @@ export default function UserInfo() {
     // 네비게이션 추가해서 로그아웃, 내역 보기 등 메뉴 구겨담아야 할 듯
     // Carousel 방식으로 개선하면 더 좋을 듯
     return(
-        <div className="grid grid-rows-[50px_1fr_80px] items-center justify-items-center min-h-screen p-6 pb-10 gap-1">
+        <div className="grid grid-rows-[50px_1fr_80px] items-center justify-items-center min-h-dvh p-6 pb-10 gap-1">
             <header className="row-start-1 gap-3 items-center justify-center text-center pt-10">
                 <p className='font-bold text-lg'>{name}님의 포춘 쿠키</p>
                 { isMyPage ? (

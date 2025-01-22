@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[80px_1fr_20px] items-center justify-items-center min-h-screen p-9 pb-20 gap-10">
+    <div className="grid grid-rows-[80px_1fr_20px] items-center justify-items-center min-h-dvh p-9 pb-20 gap-10">
       <header className="row-start-1 flex gap-6 flex-wrap items-center justify-center text-center">
         <p>친구들이 만들어준 <span className='font-bold text-lg'>포춘쿠키</span>로 <br/>올해 운세를 알아보세요!</p>
       </header>

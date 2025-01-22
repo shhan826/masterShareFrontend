@@ -128,7 +128,7 @@ export default function RevealItem () {
             <div className='absolute w-full text-right z-2'>
                 <CloseX backURL={backURL}/>
             </div>
-            <div className='absolute w-full h-full flex flex-col justify-center items-center'>
+            <div className='absolute w-full h-dvh flex flex-col justify-center items-center'>
                 <div className='tremble_animation'>
                     <Image
                         src="/mainImage.png"
@@ -163,7 +163,7 @@ export default function RevealItem () {
                     }
                 </div>
             </div>
-            <div ref={msgBoxRef} className='absolute flex flex-col justify-center items-center w-full h-screen z-1' style={{opacity: 0}}>
+            <div ref={msgBoxRef} className='absolute flex flex-col justify-center items-center w-full h-dvh z-1' style={{opacity: 0}}>
                 <div className='bg-white w-5/6 flex flex-col justify-center rounded-md shadow-xl p-3'>
                     <div className="text-center text-3xl leading-7 break-keep">
                         <span className={dokdoFont.className}>{messageString}</span>

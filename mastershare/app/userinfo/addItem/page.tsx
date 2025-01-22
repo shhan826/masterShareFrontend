@@ -16,6 +16,7 @@ const dokdoFont = East_Sea_Dokdo({
 export default function AddItem ()
 {
     // TODO: 폰트, 이미지 등 다양한 옵션으로 쿠키를 설정할 수 있게 하면 재밌을 듯
+    // TODO: 닫은 후에 해당 쿠키가 속한 리스트로 찾아 돌아갈 수 있게 수정
     const ref = useRef<HTMLTextAreaElement>(null);
 
     const [sender, setSender] = useState('익명의 글쓴이');
@@ -100,7 +101,7 @@ export default function AddItem ()
             <div className='absolute w-full text-right z-2'>
                 <CloseX backURL={backURL}/>
             </div>
-            <div className='absolute w-full h-full flex flex-col justify-center items-center'>
+            <div className='absolute w-full h-dvh flex flex-col justify-center items-center'>
                 <br/>
                 <Image
                     aria-hidden
@@ -112,7 +113,7 @@ export default function AddItem ()
                 />
                 <button className='mx-3 btn btn-primary z-2' onClick={createCookie}>만들기</button>
             </div>
-            <div className='absolute flex flex-col justify-center items-center w-full h-screen z-1'>
+            <div className='absolute flex flex-col justify-center items-center w-full h-dvh z-1'>
                 <div className='text-left w-5/6 mb-1'>
                     <input
                         type='text' 

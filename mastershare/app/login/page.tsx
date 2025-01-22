@@ -71,7 +71,7 @@ export default function Login() {
 
     return(
         <div>
-            <div className='flex flex-col justify-center items-center w-full h-screen'>
+            <div className='flex flex-col justify-center items-center w-full h-dvh'>
                 <h3 className='font-bold'>로그인</h3><br/>
                 <form className='flex flex-col'>
                     <label>아이디: </label>
