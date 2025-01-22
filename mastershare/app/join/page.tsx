@@ -39,6 +39,9 @@ export default function Join() {
         } else if (email === '') {
             alert('이메일 주소를 입력해주세요.');
             return false;
+        } else if (nickName === '') {
+            alert('이름(닉네임)을 입력해주세요.');
+            return false;
         }
         return true;
     }

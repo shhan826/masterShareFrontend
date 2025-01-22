@@ -29,6 +29,7 @@ export default function AddItem ()
     const backURL = '/userinfo?pageid=' + pageId;
 
     useEffect(() => {
+        // 1) 작성 예시 랜덤 적용
         const sampleStringArray = [
             '좋은 인연을\n만나게 될 지도?',
             '고민하고 있던 일들이\n곧 풀릴 예정',
@@ -39,6 +40,9 @@ export default function AddItem ()
         ];
         const sampleStringIndex = Math.floor(Math.random() * 6);
         setSampleString(sampleStringArray[sampleStringIndex]);
+        // 2) 닉네임 있으면 작성자 이름으로 사용
+        const nickName = localStorage.getItem('nickName');
+        if (nickName && nickName !== '') setSender(nickName);
     }, []);
 
     const onTextContentHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -124,7 +128,7 @@ export default function AddItem ()
                 <div className='text-right w-5/6 mt-1'>
                     <input 
                         className="text-center text-md p-2 shadow-xl" 
-                        maxLength={10} placeholder="- 글쓴이 이름" 
+                        maxLength={10} placeholder={"- " + sender}
                         onChange={onSenderHandler}>
                     </input>
                 </div>

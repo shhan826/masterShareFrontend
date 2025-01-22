@@ -43,7 +43,7 @@ export default function CookieImg (props: ImgProps)
             return;
         }
         if (userId !== pageId) {
-            alert('아직 열리지 않은 쿠키는 주인만 확인할 수 있습니다.');
+            alert('아직 열리지 않은 쿠키는 받은 사람만 확인할 수 있습니다.');
             return;
         }
         openMessageAPI(msgId, accessToken)

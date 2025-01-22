@@ -37,7 +37,7 @@ export default function RevealItem () {
 
     const onShareMessage = async () => {
         navigator.clipboard.writeText(window.location.href);
-        alert('주소가 복사되었습니다.');
+        alert('현재 열린 쿠키의 주소가 복사되었습니다. 친구들과 공유해보세요!');
     };
     const onDeleteMessage = () => {
         if (msgId === null) return null;
@@ -45,7 +45,7 @@ export default function RevealItem () {
             alert('삭제할 수 없는 내용입니다.');
             return;
         }
-        if (confirm("해당 포춘 쿠키를 삭제하시겠습니까?") === false) {
+        if (confirm("삭제된 쿠키는 복원이 불가합니다. 해당 쿠키를 정말로 삭제하시겠습니까?") === false) {
             return;
         }
         deleteMessageAPI(msgId, accessToken)

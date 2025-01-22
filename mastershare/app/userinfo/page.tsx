@@ -162,14 +162,14 @@ export default function UserInfo() {
                     </span>
                 </div>
                 { isMyPage ? (
-                    <div>
-                        <div className="text-gray-600">
-                            원하는 쿠키를 열어보세요!&nbsp;&nbsp;
-                            <button type="button" className="underline" onClick={openRandomMessage}>무작위 열기</button>
-                        </div>
+                    <div className="text-gray-600">
+                        원하는 쿠키를 열어보세요!&nbsp;&nbsp;
+                        <button type="button" className="underline" onClick={openRandomMessage}>무작위 열기</button>
                     </div>
                 ) : (
-                    <div>포춘 쿠키로 새해 덕담을 남겨보세요!</div>
+                    <div className="text-gray-600">
+                        포춘 쿠키로 새해 덕담을 남겨보세요!
+                    </div>
                 )}
             </header>
             <div className="flex flex-col row-start-2 items-center w-full h-5/6">
