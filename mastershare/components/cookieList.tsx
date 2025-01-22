@@ -6,7 +6,7 @@ import CookieImg from "./cookieImg";
 
 interface CookieListProps {
     cookies: Array<CookieContent>,
-    pageId: string
+    pageId: string | null
 }
 
 export default function CookieList (props: CookieListProps)

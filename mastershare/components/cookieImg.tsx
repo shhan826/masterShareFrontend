@@ -14,13 +14,13 @@ const dokdoFont = East_Sea_Dokdo({
 interface ImgProps {
     cookieData: CookieContent,
     size: number,
-    pageId: string
+    pageId: string | null
 }
 
 export default function CookieImg (props: ImgProps)
 {
     const {cookieData, pageId} = props;
-    if (props.cookieData === undefined) {
+    if (props.cookieData === undefined || pageId === null) {
         return <></>;
     }
     const title = cookieData.title;

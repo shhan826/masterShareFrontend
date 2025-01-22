@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Suspense } from "react";
 
 const pretendard = localFont({
   src: "./fonts/Pretendard-Medium.woff",
   display: 'swap',
-})
+});
 
 // 공유할 때 썸네일 보여줄 수 있게 추가
 
@@ -26,7 +27,9 @@ export default function RootLayout({
       <body
         className={`${pretendard.className} ${pretendard.className} antialiased `}
       >
-        {children}
+        <Suspense>
+          {children}
+        </Suspense>
       </body>
     </html>
   );

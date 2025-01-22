@@ -1,7 +1,7 @@
 'use client'
 
 import CloseX from "@/components/closeX";
-import { redirect } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import { East_Sea_Dokdo } from 'next/font/google'
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
@@ -22,30 +22,21 @@ export default function AddItem ()
     const [sender, setSender] = useState('익명의 글쓴이');
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
-    const [pageId, setPageId] = useState('');
     const [sampleString, setSampleString] = useState('');
+    const searchParams = useSearchParams();
 
-    const sampleStringArray = [
-        '좋은 인연을\n만나게 될 지도?',
-        '고민하고 있던 일들이\n곧 풀릴 예정',
-        '한 해 내내\n잔병치레 없는 건강',
-        '베풀면\n배로 돌아올 것',
-        '예상치 못한\n수익이 들어옴',
-        '좋은 운이 있어,\n소중히 사용할 것'
-    ];
+    const pageId = searchParams.get('pageid');
     const backURL = '/userinfo?pageid=' + pageId;
 
     useEffect(() => {
-        // 1) url param
-        const url = new URL(window.location.href);
-        const urlParam = url.searchParams.get('pageId');
-        if (urlParam === null) {
-            alert('잘못된 접근입니다.');
-            redirect('/');
-        } else {
-            setPageId(urlParam);
-        }
-        // 2) sample string
+        const sampleStringArray = [
+            '좋은 인연을\n만나게 될 지도?',
+            '고민하고 있던 일들이\n곧 풀릴 예정',
+            '한 해 내내\n잔병치레 없는 건강',
+            '베풀면\n배로 돌아올 것',
+            '예상치 못한\n수익이 들어옴',
+            '좋은 운이 있어,\n소중히 사용할 것'
+        ];
         const sampleStringIndex = Math.floor(Math.random() * 6);
         setSampleString(sampleStringArray[sampleStringIndex]);
     }, []);
@@ -82,7 +73,7 @@ export default function AddItem ()
         redirect(backURL);
     }
     const createCookie = () => {
-        if (checkInputInfo() === false) return;
+        if (checkInputInfo() === false || pageId ===  null) return;
         let adjustedTitle = title;
         if (title === '') {
             adjustedTitle = (content.length > 10) ? (content.substring(0, 8) + "..") : content;

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { East_Sea_Dokdo } from 'next/font/google'
 import { useEffect, useRef, useState } from "react";
-import { redirect } from 'next/navigation'
+import { redirect, useSearchParams } from 'next/navigation'
 import CloseX from "@/components/closeX";
 import { MsgDeleteResult, MsgRevealResult, RefreshTokenResult } from "@/lib/type";
 import { deleteMessageAPI, getMessageAPI, refreshTokenAPI } from "@/lib/util";
@@ -16,20 +16,22 @@ const dokdoFont = East_Sea_Dokdo({
 export default function RevealItem () {
     const msgBoxRef = useRef<HTMLDivElement>(null);
 
-    const [msgId, setMsgId] = useState('');
-    const [pageId, setPageId] = useState('');
     const [messageString, setMessageString] = useState('');
     const [writerNickName, setWriterNickName] = useState('');
+
+    const searchParams = useSearchParams();
+    const [isClient, setIsClient] = useState(false);
 
     let accessToken = '';
     let refreshToken = '';
     let userId = '';
-    if (typeof window !== 'undefined') {
+    if (isClient) {
         accessToken = localStorage.getItem('accessToken') || '';
         refreshToken = localStorage.getItem('refreshToken') || '';
         userId = localStorage.getItem("userId") || '';
     }
-
+    const pageId = searchParams.get('pageid');
+    const msgId = searchParams.get('msgid');
     const isMyPage = (userId === pageId);
     const backURL = '/userinfo?pageid=' + pageId;
 
@@ -38,6 +40,7 @@ export default function RevealItem () {
         alert('주소가 복사되었습니다.');
     };
     const onDeleteMessage = () => {
+        if (msgId === null) return null;
         if (msgId === '-1') {
             alert('삭제할 수 없는 내용입니다.');
             return;
@@ -57,10 +60,11 @@ export default function RevealItem () {
         } 
     };
     const handleRefreshTokenOnMsgDelete = (result: RefreshTokenResult) => {
+        if (msgId === null) return;
         if (result.success) {
             const newAccessToken = result.data.accessToken;
             const newRefreshToken = result.data.refreshToken;
-            if (typeof window !== 'undefined') {
+            if (isClient) {
                 localStorage.setItem('accessToken', newAccessToken);
                 localStorage.setItem('refreshToken', newRefreshToken);
             }
@@ -74,7 +78,7 @@ export default function RevealItem () {
             });
         } else {
             alert('로그인 정보가 만료되었습니다. 다시 로그인해주세요.');
-            if (typeof window !== 'undefined') {
+            if (isClient) {
                 localStorage.removeItem("userId");
                 localStorage.removeItem("nickName");
                 localStorage.removeItem("accessToken");
@@ -90,6 +94,9 @@ export default function RevealItem () {
     };
 
     useEffect(() => {
+        setIsClient(true);
+    }, []);
+    useEffect(() => {
         setTimeout(() => {
             const msgBox = msgBoxRef.current;
             if (msgBox) {
@@ -99,20 +106,7 @@ export default function RevealItem () {
         }, 1600)
     }, [msgBoxRef]);
     useEffect(() => {
-        const url = new URL(window.location.href);
-        const urlParam1 = url.searchParams.get('msgid');
-        const urlParam2 = url.searchParams.get('pageid');
-        if (urlParam1 === null) {
-            alert('잘못된 접근입니다.');
-            redirect('/');
-        } else {
-            setMsgId(urlParam1);
-            if (urlParam2 !== null) {
-                setPageId(urlParam2);
-            }
-        }
-    }, []);
-    useEffect(() => {
+        if (msgId === null) return;
         if (msgId === '-1') {
             setMessageString('새해 복 많이 받으세요!');
             setWriterNickName('관리자');
