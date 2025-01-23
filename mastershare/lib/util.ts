@@ -88,6 +88,8 @@ export async function deleteMessageAPI(msgId: string, accessToken: string): Prom
     });
     if (response.ok) {
         return response.json();
+    } else if (response.status === 401) {
+        return authorizationFailResult as MsgDeleteResult;
     }
     return noResponseFailResult as MsgDeleteResult;
 };

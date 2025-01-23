@@ -10,10 +10,22 @@ export const metadata: Metadata = {
     title: title,
     description: description,
     url: 'https://lettergram.store',
+    images: [
+      {
+        url: '/thumbnail.png',
+        alt: 'fortune cookie'
+      }
+    ]
   },
   twitter: {
     title: title,
-    description: description
+    description: description,
+    images: [
+      {
+        url: '/thumbnail.png',
+        alt: 'fortune cookie'
+      }
+    ]
   }
 };
 
