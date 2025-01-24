@@ -10,7 +10,7 @@ const pretendard = localFont({
 });
 
 const title = "포춘 쿠키";
-const description = "친구들과 쿠키로 덕담을 나눠보세요!";
+const description = "친구에게 쿠키로 덕담을 남겨주세요!";
 export const metadata: Metadata = {
   title: title,
   description: description,

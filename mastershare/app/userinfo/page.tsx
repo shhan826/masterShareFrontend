@@ -93,6 +93,7 @@ export default function UserInfo() {
         navigator.clipboard.writeText(window.location.href);
         alert('내 페이지 주소가 복사되었습니다. 친구들에게 공유해보세요.');
     };
+    // 현재 페이지에서 보이는 쿠키 중에서만 랜덤으로 선택됨. 전체로 넓히면 좋을 듯
     const openRandomMessage = () => {
         if (randomMsgId === '-1') {
             redirect(randomMsgLink);
@@ -163,8 +164,10 @@ export default function UserInfo() {
                 </div>
                 { isMyPage ? (
                     <div className="text-gray-600">
-                        원하는 쿠키를 열어보세요!&nbsp;&nbsp;
-                        <button type="button" className="underline" onClick={openRandomMessage}>무작위 열기</button>
+                        친구에게 공유해서 쿠키를 요청하세요!&nbsp;&nbsp;
+                        <div className="hidden">
+                            <button type="button" className="underline" onClick={openRandomMessage}>무작위 열기</button>
+                        </div>
                     </div>
                 ) : (
                     <div className="text-gray-600">

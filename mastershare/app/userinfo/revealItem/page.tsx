@@ -1,6 +1,7 @@
 'use client'
 
 import Image from "next/image";
+import Link from 'next/link'
 import { East_Sea_Dokdo } from 'next/font/google'
 import { useEffect, useRef, useState } from "react";
 import { redirect, useSearchParams } from 'next/navigation'
@@ -45,7 +46,7 @@ export default function RevealItem () {
             alert('삭제할 수 없는 내용입니다.');
             return;
         }
-        if (confirm("삭제된 쿠키는 복원이 불가합니다. 해당 쿠키를 정말로 삭제하시겠습니까?") === false) {
+        if (confirm("삭제된 쿠키는 복원할 수 없습니다. 해당 쿠키를 정말로 삭제하시겠습니까?") === false) {
             return;
         }
         deleteMessageAPI(msgId, accessToken)
@@ -133,16 +134,23 @@ export default function RevealItem () {
                 </div>
                 <div className='z-2'>
                     <br/>
-                    <button className='mx-2 btn btn-warning' onClick={onShareMessage}>
-                        <Image
-                            src="/share.svg"
-                            alt="share"
-                            width={20}
-                            height={20}
-                            className="inline-block"
-                        />
-                        <span>&nbsp;&nbsp;공유하기</span>
-                    </button>
+                    <div className="hidden">
+                        <button className='mx-2 btn btn-warning' onClick={onShareMessage}>
+                            <Image
+                                src="/share.svg"
+                                alt="share"
+                                width={20}
+                                height={20}
+                                className="inline-block"
+                            />
+                            <span>&nbsp;&nbsp;공유하기</span>
+                        </button>
+                    </div>
+                    <Link href={backURL}>
+                        <button className='mx-2 btn btn-warning'>
+                            <span>🍪&nbsp;&nbsp;쿠키 목록</span>
+                        </button>
+                    </Link>
                     { isMyPage && 
                         <button className='mx-2 btn btn-light' onClick={onDeleteMessage}>
                             <Image

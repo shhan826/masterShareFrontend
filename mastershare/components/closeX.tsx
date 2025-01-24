@@ -12,7 +12,7 @@ export default function CloseX (props: CloseProps)
     };
     
     return(
-        <div className='absolute w-full text-right z-2'>
+        <div>
           <button className='m-4 text-slate-400 text-4xl' onClick={moveBack}>{closeXString}</button>
         </div>
     );
