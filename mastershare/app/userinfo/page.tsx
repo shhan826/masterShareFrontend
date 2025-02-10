@@ -152,14 +152,14 @@ export default function UserInfo() {
     // Carousel 방식으로 개선하면 더 좋을 듯
     // 현재 몇 페이지를 보고 있는지에 대한 정보도 Params로 넣어야 할 듯
     return(
-        <div className="grid grid-rows-[80px_1fr_80px] items-center justify-items-center min-h-dvh p-6 pb-10 gap-1">
+        <div className="grid grid-rows-[100px_1fr_80px] items-center justify-items-center min-h-dvh p-6 pb-10 gap-1">
             <header className="row-start-1 gap-3 items-center justify-center text-center pt-0">
                 <div className='text-xl mb-0.5'>
                     <span className={`${pretendardBold.className} ${pretendardBold.className} antialiased `}>
                         {name}
                     </span>
                     <span>
-                        님의 포춘 쿠키&nbsp;..&nbsp;🍪
+                        님의 포춘 쿠키
                     </span>
                 </div>
                 { isMyPage ? (
@@ -174,7 +174,13 @@ export default function UserInfo() {
                         포춘 쿠키로 새해 덕담을 남겨보세요!
                     </div>
                 )}
+                 <div className="flex flex-row gap-2 justify-center pt-3">
+                    <button type="button" className="btn btn-dark btn-sm" style={{borderRadius: "30px"}}>받은 쿠키</button>
+                    <button type="button" className="btn btn-outline-dark btn-sm" style={{borderRadius: "30px"}}>만든 쿠키</button>
+                    <Link href="/join"><button type="button" className="btn btn-outline-dark btn-sm" style={{borderRadius: "30px"}}>회원 정보</button></Link>
+                </div>
             </header>
+
             <div className="flex flex-col row-start-2 items-center w-full h-5/6">
                 <CookieList cookies={cookieArray} pageId={pageId}/>
             </div>
@@ -194,9 +200,10 @@ export default function UserInfo() {
                                 height={20}
                                 className="inline-block"
                             />
-                            <span>&nbsp;&nbsp;공유하기</span>
+                            <span>&nbsp;&nbsp;쿠키 요청하기</span>
                         </button>
-                        { userId && <button className="btn btn-light" style={{color: "gray"}} onClick={logout}>로그아웃</button> }
+                        <Link href="/"><button type="button" className="btn btn-light">메인 페이지</button></Link> 
+                        { /* userId && <button className="btn btn-light" style={{color: "gray"}} onClick={logout}>로그아웃</button> */ }
                     </div>
                 ) : (
                     <div className="flex flex-row gap-3">

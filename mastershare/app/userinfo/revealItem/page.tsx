@@ -34,7 +34,7 @@ export default function RevealItem () {
     const pageId = searchParams.get('pageid');
     const msgId = searchParams.get('msgid');
     const isMyPage = (userId === pageId);
-    const backURL = '/userinfo?pageid=' + pageId;
+    const backURL = pageId === 'random' ? '/' : '/userinfo?pageid=' + pageId;
 
     const onShareMessage = async () => {
         navigator.clipboard.writeText(window.location.href);
@@ -107,6 +107,13 @@ export default function RevealItem () {
         }, 1600)
     }, [msgBoxRef]);
     useEffect(() => {
+        // TODO: random message open
+        if (pageId === 'random') {
+            setMessageString('랜덤 메시지 예시입니다.');
+            setWriterNickName('관리자');
+            return;
+        }
+        
         if (msgId === null) return;
         if (msgId === '-1') {
             setMessageString('새해 복 많이 받으세요!');
@@ -146,11 +153,13 @@ export default function RevealItem () {
                             <span>&nbsp;&nbsp;공유하기</span>
                         </button>
                     </div>
-                    <Link href={backURL}>
-                        <button className='mx-2 btn btn-warning'>
-                            <span>🍪&nbsp;&nbsp;쿠키 목록</span>
-                        </button>
-                    </Link>
+                    { pageId !== 'random' &&
+                        <Link href={backURL}>
+                            <button className='mx-2 btn btn-warning'>
+                                <span>🍪&nbsp;&nbsp;쿠키 목록</span>
+                            </button>
+                        </Link>
+                    }
                     { isMyPage && 
                         <button className='mx-2 btn btn-light' onClick={onDeleteMessage}>
                             <Image

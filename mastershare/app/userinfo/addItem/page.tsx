@@ -23,10 +23,11 @@ export default function AddItem ()
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [sampleString, setSampleString] = useState('');
+    const [isPublic, setIsPublic] = useState(true);
     const searchParams = useSearchParams();
 
     const pageId = searchParams.get('pageid');
-    const backURL = '/userinfo?pageid=' + pageId;
+    const backURL = pageId === 'random' ? '/' : '/userinfo?pageid=' + pageId;
 
     useEffect(() => {
         // 1) 작성 예시 랜덤 적용
@@ -63,6 +64,10 @@ export default function AddItem ()
     const onSenderHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSender(e.target.value);
     };
+    const onCheckBoxHandler = () => {
+        setIsPublic(!isPublic);
+        // TODO: isPublic 정보 사용
+    }
     const checkInputInfo = () => {
         if (content === '') {
             alert('내용을 한 글자 이상 입력해주세요.');
@@ -106,6 +111,7 @@ export default function AddItem ()
                     height={300}
                     className="opacity-50"
                 />
+                <div className='text-right w-5/6 mb-1 z-2'><input type="checkbox" checked={isPublic} onChange={onCheckBoxHandler}/><span> 전체 공개</span></div>
                 <button className='mx-3 btn btn-primary z-2' onClick={createCookie}>만들기</button>
             </div>
             <div className='absolute flex flex-col justify-center items-center w-full h-dvh z-1'>
@@ -132,6 +138,7 @@ export default function AddItem ()
                         onChange={onSenderHandler}>
                     </input>
                 </div>
+                <br/>
             </div>
         </div>
     );

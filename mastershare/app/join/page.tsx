@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { JoinInput, JoinResult } from "@/lib/type";
 import { joinAPI } from "@/lib/util";
 
-// 회원 정보 수정 페이지도 만들면 좋을 듯
+// TODO: 로그인 한 상태에서 들어오면 회원 정보 수정으로 작동하게 수정
 export default function Join() {
     const [id, setId] = useState('');
     const [password, setPassword] = useState('');
