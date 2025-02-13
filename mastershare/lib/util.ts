@@ -1,7 +1,10 @@
-import { BoardResult, CreateCookieInput, CreateCookieResult, JoinInput, JoinResult, LoginInput, LoginResult, MsgDeleteResult, MsgListResult, MsgOpenResult, MsgRevealResult, RefreshTokenResult } from "./type";
+import { BoardResult, CreateCookieInput, CreateCookieResult, JoinInput, JoinResult, LoginInput, LoginResult, MsgUpdateResult, MsgListResult, MsgRevealResult, RefreshTokenResult, UpdateMsgInput } from "./type";
 
-// const originURL = "http://localhost:8080";
-const originURL = "https://www.lettergramapi.store";
+const origin = "http://localhost:8080";
+// const origin = "https://www.lettergramapi.store";
+
+const preFix = "/api/v1";
+
 const noResponseFailResult = {
     success: false,
     error: {
@@ -18,7 +21,7 @@ const authorizationFailResult = {
 }
 
 export async function joinAPI(input: JoinInput): Promise<JoinResult> {
-    const url = originURL + "/auth/v1/join"
+    const url = origin + preFix + "/auth/join";
     const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -33,7 +36,7 @@ export async function joinAPI(input: JoinInput): Promise<JoinResult> {
 };
 
 export async function loginAPI(input: LoginInput): Promise<LoginResult> {
-    const url = originURL + "/auth/v1/login"
+    const url = origin + preFix + "/auth/login"
     const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -47,8 +50,8 @@ export async function loginAPI(input: LoginInput): Promise<LoginResult> {
     return noResponseFailResult as LoginResult;
 };
 
-export async function createMessageAPI(pageId: string, input: CreateCookieInput): Promise<CreateCookieResult> {
-    const url = originURL + "/boards/v1/" + pageId + "/board/message/new";
+export async function createMessageAPI(boardId: number, input: CreateCookieInput): Promise<CreateCookieResult> {
+    const url = origin + preFix + "/boards/" + boardId + "/messages";
     const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -62,8 +65,8 @@ export async function createMessageAPI(pageId: string, input: CreateCookieInput)
     return noResponseFailResult as CreateCookieResult;
 };
 
-export async function getMessageAPI(msgId: string, accessToken: string): Promise<MsgRevealResult> {
-    const url = originURL + "/boards/v1/message/" + msgId;
+export async function getMessageAPI(msgId: number, accessToken: string): Promise<MsgRevealResult> {
+    const url = origin + preFix + "/messages/" + msgId;
     const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -77,25 +80,26 @@ export async function getMessageAPI(msgId: string, accessToken: string): Promise
     return noResponseFailResult as MsgRevealResult;
 };
 
-export async function deleteMessageAPI(msgId: string, accessToken: string): Promise<MsgDeleteResult> {
-    const url = originURL + "/boards/v1/message/delete/" + msgId;
+export async function updateMessageAPI(msgId: number, accessToken: string, input: UpdateMsgInput): Promise<MsgUpdateResult> {
+    const url = origin + preFix + "/messages/" + msgId;
     const response = await fetch(url, {
-        method: "PATCH",
+        method: "PUT",
         headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${accessToken}`
-        }
+        },
+        body: JSON.stringify(input)
     });
     if (response.ok) {
         return response.json();
     } else if (response.status === 401) {
-        return authorizationFailResult as MsgDeleteResult;
+        return authorizationFailResult as MsgUpdateResult;
     }
-    return noResponseFailResult as MsgDeleteResult;
+    return noResponseFailResult as MsgUpdateResult;
 };
 
-export async function getBoardAPI(pageId: string): Promise<BoardResult> {
-    const url = originURL + "/boards/v1/" + pageId + "/board";
+export async function getBoardAPI(userKey: string): Promise<BoardResult> {
+    const url = origin + preFix + "/users/" + userKey + "/boards";
     const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -108,8 +112,10 @@ export async function getBoardAPI(pageId: string): Promise<BoardResult> {
     return noResponseFailResult as BoardResult;
 };
 
-export async function getMessageListAPI(pageId: string, page: number, size: number): Promise<MsgListResult> {
-    const url = originURL + "/boards/v1/" + pageId + "/board/messages?page=" + page + "&size=" + size;
+export async function getMessageListAPI(boardId: number, page: number, size: number, opened?: boolean, deleted?: boolean): Promise<MsgListResult> {
+    const openQuery = (opened !== undefined) ? "&opened=" + opened : "";
+    const deleteQuery = (deleted  !== undefined) ? "&deleted=" + deleted : "";
+    const url = origin + preFix + "/boards/" + boardId + "/messages" + "?page=" + page + "&size=" + size + openQuery + deleteQuery;
     const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -122,25 +128,8 @@ export async function getMessageListAPI(pageId: string, page: number, size: numb
     return noResponseFailResult as MsgListResult;
 };
 
-export async function openMessageAPI(msgId: string, accessToken: string): Promise<MsgOpenResult> {
-    const url = originURL + "/boards/v1/message/open/" + msgId;
-    const response = await fetch(url, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`
-        }
-    });
-    if (response.ok) {
-        return response.json();
-    } else if (response.status === 401) {
-        return authorizationFailResult as MsgOpenResult;
-    }
-    return noResponseFailResult as MsgOpenResult;
-};
-
 export async function refreshTokenAPI(accessToken: string, refreshToken: string): Promise<RefreshTokenResult> {
-    const url = originURL + "/auth/v1/token/refresh?refreshToken=" + refreshToken;
+    const url = origin + preFix + "/auth/token/refresh?refreshToken=" + refreshToken;
     const response = await fetch(url, {
         method: "GET",
         headers: {

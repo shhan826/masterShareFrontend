@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { redirect } from 'next/navigation'
 import { East_Sea_Dokdo } from 'next/font/google'
-import { CookieContent, MsgOpenResult, RefreshTokenResult } from "@/lib/type";
-import { openMessageAPI, refreshTokenAPI } from "@/lib/util";
+import { CookieContent, MsgUpdateResult, RefreshTokenResult } from "@/lib/type";
+import { updateMessageAPI, refreshTokenAPI } from "@/lib/util";
 
 const dokdoFont = East_Sea_Dokdo({
     preload: false,
@@ -25,7 +25,7 @@ export default function CookieImg (props: ImgProps)
     }
     const title = cookieData.title;
     const isOpen = cookieData.opened;
-    const msgId = cookieData.messageKey;
+    const msgId = cookieData.messageId;
     const link = '/userinfo/revealItem?msgid=' + msgId + '&pageid=' + pageId;
 
     let accessToken = '';
@@ -38,7 +38,7 @@ export default function CookieImg (props: ImgProps)
     }
 
     const openMessage = () => {
-        if (msgId === '-1' || isOpen === true) {
+        if (msgId === -1 || isOpen === true) {
             redirect(link);
             return;
         }
@@ -46,10 +46,10 @@ export default function CookieImg (props: ImgProps)
             alert('아직 열리지 않은 쿠키는 받은 사람만 확인할 수 있습니다.');
             return;
         }
-        openMessageAPI(msgId, accessToken)
+        updateMessageAPI(msgId, accessToken, { opened: true })
         .then((result) => handleOpenMessage(result));
     };
-    const handleOpenMessage = (result: MsgOpenResult) => {
+    const handleOpenMessage = (result: MsgUpdateResult) => {
         if (result.success === false && result.error.code === 401) {
             refreshTokenAPI(accessToken, refreshToken)
             .then((result) => handleRefreshTokenOnOpenMessage(result));
@@ -65,7 +65,7 @@ export default function CookieImg (props: ImgProps)
                 localStorage.setItem('accessToken', newAccessToken);
                 localStorage.setItem('refreshToken', newRefreshToken);
             }
-            openMessageAPI(msgId, newAccessToken)
+            updateMessageAPI(msgId, newAccessToken, { opened: true })
             .then((result) => {
                 if (result.success) {
                     redirect(link);

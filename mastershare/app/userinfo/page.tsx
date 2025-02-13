@@ -6,8 +6,8 @@ import Image from "next/image";
 import localFont from "next/font/local";
 import { redirect, useSearchParams } from 'next/navigation'
 import CookieList from "@/components/cookieList";
-import { BoardResult, CookieContent, MsgListResult, MsgOpenResult, RefreshTokenResult } from "@/lib/type";
-import { getBoardAPI, getMessageListAPI, openMessageAPI, refreshTokenAPI } from "@/lib/util";
+import { BoardResult, CookieContent, MsgListResult, MsgUpdateResult, RefreshTokenResult } from "@/lib/type";
+import { getBoardAPI, getMessageListAPI, updateMessageAPI, refreshTokenAPI } from "@/lib/util";
 
 const pretendardBold = localFont({
     src: "../fonts/Pretendard-Bold.woff",
@@ -16,6 +16,7 @@ const pretendardBold = localFont({
 
 export default function UserInfo() {
     const [nickName, setNickName] = useState('');
+    const [boardId, setBoardId] = useState(0);
     const [hasPrev, setHasPrev] = useState(false);
     const [hasNext, setHasNext] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -27,9 +28,10 @@ export default function UserInfo() {
     const [isClient, setIsClient] = useState(false);
 
     const [cookieArray, setCookieArray] = useState<CookieContent[]>([{
-        messageKey: '-1',
+        messageId: -1,
         sender: '관리자', 
         title: '기본 제공 쿠키', 
+        content: '새해 복 많이 받으세요!',
         opened: false,
         createdAt: ''
     }]);
@@ -46,25 +48,24 @@ export default function UserInfo() {
     const pageId = searchParams.get('pageid');
     const name = (nickName === '') ? '회원' : nickName;
     const isMyPage = (userId === pageId);
-    const randomMsgIndex = Math.floor(Math.random() * cookieArray.length);
-    const randomMsgId = cookieArray[randomMsgIndex].messageKey;
-    const randomMsgLink = '/userinfo/revealItem?msgid=' + randomMsgId + '&pageid=' + pageId;
 
     useEffect(() => {
         setIsClient(true);
     }, []);
     useEffect(() => {
         if (pageId === null) return;
-        // 1) 게시판 정보
         getBoardAPI(pageId)
         .then((result) => handleBoardResult(result));
-        // 2) 메시지 리스트
-        getMessageListAPI(pageId, 1, 6)
-        .then((result) => handleMsgListResult(result));
     }, [pageId]);
+    useEffect(() => {
+        if (boardId === 0) return;
+        getMessageListAPI(boardId, 1, 6)
+        .then((result) => handleMsgListResult(result));
+    }, [boardId]);
 
     const handleBoardResult = (result: BoardResult) => {
         setNickName(result.data.nickname);
+        setBoardId(result.data.boards[0].boardId);
     }
     const handleMsgListResult = (result: MsgListResult) => {
         const resultData = result.data;
@@ -79,72 +80,28 @@ export default function UserInfo() {
         setPrevPage(resultData.prevPage);
         setNextPage(resultData.nextPage);
     };
-    const logout = () => {
-        if (isClient) {
-            localStorage.removeItem("userId");
-            localStorage.removeItem("nickName");
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("refreshToken");
-        }
-        alert('로그아웃 되었습니다.');
-        redirect('/');
-    };
+    // const logout = () => {
+    //     if (isClient) {
+    //         localStorage.removeItem("userId");
+    //         localStorage.removeItem("nickName");
+    //         localStorage.removeItem("accessToken");
+    //         localStorage.removeItem("refreshToken");
+    //     }
+    //     alert('로그아웃 되었습니다.');
+    //     redirect('/');
+    // };
     const share = () => {
         navigator.clipboard.writeText(window.location.href);
         alert('내 페이지 주소가 복사되었습니다. 친구들에게 공유해보세요.');
     };
-    // 현재 페이지에서 보이는 쿠키 중에서만 랜덤으로 선택됨. 전체로 넓히면 좋을 듯
-    const openRandomMessage = () => {
-        if (randomMsgId === '-1') {
-            redirect(randomMsgLink);
-            return;
-        }
-        openMessageAPI(randomMsgId, accessToken)
-        .then((result) => handleOpenRandomMessage(result));
-    };
-    const handleOpenRandomMessage = (result: MsgOpenResult) => {
-        if (result.success === false && result.error.code === 401) {
-            refreshTokenAPI(accessToken, refreshToken)
-            .then((result) => handleRefreshTokenOnOpenMessage(result));
-        } else if (result.success === true) {
-            redirect(randomMsgLink);
-        }
-    };
-    const handleRefreshTokenOnOpenMessage = (result: RefreshTokenResult) => {
-        if (result.success) {
-            const newAccessToken = result.data.accessToken;
-            const newRefreshToken = result.data.refreshToken;
-            if (isClient) {
-                localStorage.setItem('accessToken', newAccessToken);
-                localStorage.setItem('refreshToken', newRefreshToken);
-            }
-            openMessageAPI(randomMsgId, newAccessToken)
-            .then((result) => {
-                if (result.success) {
-                    redirect(randomMsgLink);
-                } else {
-                    alert('잘못된 접근입니다.');
-                }
-            });
-        } else {
-            alert('로그인 정보가 만료되었습니다. 다시 로그인해주세요.');
-            if (isClient) {
-                localStorage.removeItem("userId");
-                localStorage.removeItem("nickName");
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("refreshToken");
-            }
-            redirect('/login');
-        }
-    };
     const movePrevPage = () => {
-        if (hasPrev === false || pageId === null) return;
-        getMessageListAPI(pageId, prevPage, 6)
+        if (hasPrev === false || boardId === 0) return;
+        getMessageListAPI(boardId, prevPage, 6)
         .then((result) => handleMsgListResult(result));
     };
     const moveNextPage = () => {
-        if (hasNext === false || pageId === null) return;
-        getMessageListAPI(pageId, nextPage, 6)
+        if (hasNext === false || boardId === 0) return;
+        getMessageListAPI(boardId, nextPage, 6)
         .then((result) => handleMsgListResult(result));
     };
 
@@ -165,9 +122,6 @@ export default function UserInfo() {
                 { isMyPage ? (
                     <div className="text-gray-600">
                         친구에게 공유해서 쿠키를 요청하세요!&nbsp;&nbsp;
-                        <div className="hidden">
-                            <button type="button" className="underline" onClick={openRandomMessage}>무작위 열기</button>
-                        </div>
                     </div>
                 ) : (
                     <div className="text-gray-600">
@@ -207,7 +161,7 @@ export default function UserInfo() {
                     </div>
                 ) : (
                     <div className="flex flex-row gap-3">
-                        <Link href={'/userinfo/addItem?pageid=' + pageId}><button type="button" className="btn btn-warning">+ 쿠키 만들어주기</button></Link>
+                        <Link href={'/userinfo/addItem?pageId=' + pageId + "&boardId=" + boardId}><button type="button" className="btn btn-warning">+ 쿠키 만들어주기</button></Link>
                         { userId ? (
                             <Link href="/login"><button type="button" className="btn btn-light">내 쿠키함 가기</button></Link> 
                             ) : (

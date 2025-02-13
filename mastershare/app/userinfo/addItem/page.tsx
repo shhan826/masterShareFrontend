@@ -26,7 +26,8 @@ export default function AddItem ()
     const [isPublic, setIsPublic] = useState(true);
     const searchParams = useSearchParams();
 
-    const pageId = searchParams.get('pageid');
+    const pageId = searchParams.get('pageId');
+    const boardId = searchParams.get('boardId');
     const backURL = pageId === 'random' ? '/' : '/userinfo?pageid=' + pageId;
 
     useEffect(() => {
@@ -82,7 +83,7 @@ export default function AddItem ()
         redirect(backURL);
     }
     const createCookie = () => {
-        if (checkInputInfo() === false || pageId ===  null) return;
+        if (checkInputInfo() === false || boardId ===  null) return;
         let adjustedTitle = title;
         if (title === '') {
             adjustedTitle = (content.length > 10) ? (content.substring(0, 8) + "..") : content;
@@ -92,7 +93,7 @@ export default function AddItem ()
             title: adjustedTitle,
             content: content
         }
-        createMessageAPI(pageId, input)
+        createMessageAPI(boardId, input)
         .then((result) => handleCreateCookie(result));
     };
 

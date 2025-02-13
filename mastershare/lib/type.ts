@@ -32,16 +32,18 @@ interface LoginData {
 };
 interface CreateCookieData {
     data: {
-        messageKey: string,
+        messageId: number,
         sender: string,
         title: string,
+        content: string,
         opend: boolean,
+        deleted: boolean,
         createdAt: string
     }
 };
 interface MsgRevealData {
     data: {
-        messageKey: string,
+        messageId: number,
         sender: string,
         title: string,
         content: string,
@@ -49,15 +51,21 @@ interface MsgRevealData {
         createdAt: string
     }
 };
-interface MsgDeleteData {
+interface MsgUpdateData {
     data: {
-        messageKey: string
+        messageId: number,
+        sender: string,
+        title: string,
+        content: string,
+        opened: boolean,
+        createdAt: string
     }
 };
 export interface CookieContent {
-    messageKey: string,
+    messageId: number,
     sender: string,
     title: string,
+    content: string,
     opened: boolean,
     createdAt: string,
 };
@@ -81,17 +89,12 @@ interface BoardData {
     data: {
         username: string,
         nickname: string,
-        maxSize: number
-    }
-};
-interface MsgOpenData {
-    data: {
-        messageKey: string,
-        sender: string,
-        title: string,
-        content: string,
-        opened: boolean,
-        createdAt: string
+        boards: [
+            {
+                boardId: number,
+                maxSize: number
+            }
+        ]
     }
 };
 interface RefreshTokenData {
@@ -105,10 +108,9 @@ export type JoinResult = ResultBase & JoinData;
 export type LoginResult = ResultBase & LoginData;
 export type CreateCookieResult = ResultBase & CreateCookieData;
 export type MsgRevealResult = ResultBase & MsgRevealData;
-export type MsgDeleteResult = ResultBase & MsgDeleteData;
+export type MsgUpdateResult = ResultBase & MsgUpdateData;
 export type MsgListResult = ResultBase & MsgListData;
 export type BoardResult = ResultBase & BoardData;
-export type MsgOpenResult = ResultBase & MsgOpenData;
 export type RefreshTokenResult = ResultBase & RefreshTokenData;
 
 export interface JoinInput {
@@ -125,4 +127,10 @@ export interface CreateCookieInput {
     sender: string,
     title: string,
     content: string
+};
+export interface UpdateMsgInput {
+    title?: string,
+    content?: string,
+    opened?: boolean,
+    deleted?: boolean,
 };

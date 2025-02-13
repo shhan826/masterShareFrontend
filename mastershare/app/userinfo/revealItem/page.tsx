@@ -6,8 +6,8 @@ import { East_Sea_Dokdo } from 'next/font/google'
 import { useEffect, useRef, useState } from "react";
 import { redirect, useSearchParams } from 'next/navigation'
 import CloseX from "@/components/closeX";
-import { MsgDeleteResult, MsgRevealResult, RefreshTokenResult } from "@/lib/type";
-import { deleteMessageAPI, getMessageAPI, refreshTokenAPI } from "@/lib/util";
+import { MsgUpdateResult, MsgRevealResult, RefreshTokenResult } from "@/lib/type";
+import { updateMessageAPI, getMessageAPI, refreshTokenAPI } from "@/lib/util";
 
 const dokdoFont = East_Sea_Dokdo({
     preload: false,
@@ -49,10 +49,10 @@ export default function RevealItem () {
         if (confirm("삭제된 쿠키는 복원할 수 없습니다. 해당 쿠키를 정말로 삭제하시겠습니까?") === false) {
             return;
         }
-        deleteMessageAPI(msgId, accessToken)
+        updateMessageAPI(msgId, accessToken, { deleted: true })
         .then((result) => handleMsgDelete(result));
     };
-    const handleMsgDelete = (result: MsgDeleteResult) => {
+    const handleMsgDelete = (result: MsgUpdateResult) => {
         if (result.success === false && result.error.code === 401) {
             refreshTokenAPI(accessToken, refreshToken)
             .then((result) => handleRefreshTokenOnMsgDelete(result));
@@ -69,7 +69,7 @@ export default function RevealItem () {
                 localStorage.setItem('accessToken', newAccessToken);
                 localStorage.setItem('refreshToken', newRefreshToken);
             }
-            deleteMessageAPI(msgId, newAccessToken)
+            updateMessageAPI(msgId, newAccessToken, { deleted: true })
             .then((result) => {
                 if (result.success) {
                     redirect(backURL);
