@@ -9,7 +9,7 @@ interface CookieListProps {
     pageId: string | null
 }
 
-export default function CookieList (props: CookieListProps)
+export default function ReceivedCookieList (props: CookieListProps)
 {
     const {cookies, pageId} = props;
     const ref = useRef<HTMLDivElement>(null);

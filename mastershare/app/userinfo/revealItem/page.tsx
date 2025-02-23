@@ -31,10 +31,11 @@ export default function RevealItem () {
         refreshToken = localStorage.getItem('refreshToken') || '';
         userId = localStorage.getItem("userId") || '';
     }
-    const pageId = searchParams.get('pageid');
+    const pageId = searchParams.get('pageId');
     const msgId = searchParams.get('msgid');
     const isMyPage = (userId === pageId);
-    const backURL = pageId === 'random' ? '/' : '/userinfo?pageid=' + pageId;
+    const backURL = pageId === 'random' ? '/' : '/userinfo?pageId=' + pageId;
+    const cookieListURL = userId !== '' ? '/userinfo?pageId=' + userId : '/login';
 
     const onShareMessage = async () => {
         navigator.clipboard.writeText(window.location.href);
@@ -141,25 +142,21 @@ export default function RevealItem () {
                 </div>
                 <div className='z-2'>
                     <br/>
-                    <div className="hidden">
-                        <button className='mx-2 btn btn-warning' onClick={onShareMessage}>
-                            <Image
-                                src="/share.svg"
-                                alt="share"
-                                width={20}
-                                height={20}
-                                className="inline-block"
-                            />
-                            <span>&nbsp;&nbsp;공유하기</span>
+                    <button className='mx-2 btn btn-warning' onClick={onShareMessage}>
+                        <Image
+                            src="/share.svg"
+                            alt="share"
+                            width={20}
+                            height={20}
+                            className="inline-block"
+                        />
+                         <span>&nbsp;&nbsp;공유</span>
+                    </button>
+                    <Link href={cookieListURL}>
+                        <button className='mx-2 btn btn-warning'>
+                            <span>🍪&nbsp;&nbsp;쿠키 목록</span>
                         </button>
-                    </div>
-                    { pageId !== 'random' &&
-                        <Link href={backURL}>
-                            <button className='mx-2 btn btn-warning'>
-                                <span>🍪&nbsp;&nbsp;쿠키 목록</span>
-                            </button>
-                        </Link>
-                    }
+                    </Link>
                     { isMyPage && 
                         <button className='mx-2 btn btn-light' onClick={onDeleteMessage}>
                             <Image

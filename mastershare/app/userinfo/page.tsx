@@ -5,15 +5,24 @@ import Link from 'next/link'
 import Image from "next/image";
 import localFont from "next/font/local";
 import { redirect, useSearchParams } from 'next/navigation'
-import CookieList from "@/components/cookieList";
-import { BoardResult, CookieContent, MsgListResult, MsgUpdateResult, RefreshTokenResult } from "@/lib/type";
-import { getBoardAPI, getMessageListAPI, updateMessageAPI, refreshTokenAPI } from "@/lib/util";
+import ReceivedCookieList from "@/components/receivedCookieList";
+import { BoardResult, CookieContent, MsgListResult } from "@/lib/type";
+import { getBoardAPI, getMessageListAPI } from "@/lib/util";
 
 const pretendardBold = localFont({
     src: "../fonts/Pretendard-Bold.woff",
     display: 'swap',
   });
 
+const TAB = {
+    RECEIVED: 0,
+    CREATED: 1,
+    MYINFO: 2
+};
+
+const selectedTabStyle = "btn btn-dark btn-sm";
+const otherTabStyle = "btn btn-outline-dark btn-sm";
+  
 export default function UserInfo() {
     const [nickName, setNickName] = useState('');
     const [boardId, setBoardId] = useState(0);
@@ -23,6 +32,8 @@ export default function UserInfo() {
     const [prevPage, setPrevPage] = useState(1);
     const [nextPage, setNextPage] = useState(2);
     const [lastPage, setLastPage] = useState(1);
+    const [tab, setTab] = useState(TAB.RECEIVED);
+    const [tabStyle, setTabStyle] = useState([selectedTabStyle, otherTabStyle, otherTabStyle]);
 
     const searchParams = useSearchParams();
     const [isClient, setIsClient] = useState(false);
@@ -80,16 +91,16 @@ export default function UserInfo() {
         setPrevPage(resultData.prevPage);
         setNextPage(resultData.nextPage);
     };
-    // const logout = () => {
-    //     if (isClient) {
-    //         localStorage.removeItem("userId");
-    //         localStorage.removeItem("nickName");
-    //         localStorage.removeItem("accessToken");
-    //         localStorage.removeItem("refreshToken");
-    //     }
-    //     alert('로그아웃 되었습니다.');
-    //     redirect('/');
-    // };
+    const logout = () => {
+        if (isClient) {
+            localStorage.removeItem("userId");
+            localStorage.removeItem("nickName");
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+        }
+        alert('로그아웃 되었습니다.');
+        redirect('/');
+    };
     const share = () => {
         navigator.clipboard.writeText(window.location.href);
         alert('내 페이지 주소가 복사되었습니다. 친구들에게 공유해보세요.');
@@ -104,8 +115,23 @@ export default function UserInfo() {
         getMessageListAPI(boardId, nextPage, 6)
         .then((result) => handleMsgListResult(result));
     };
-
-    // 네비게이션 추가해서 로그아웃, 내역 보기 등 메뉴 구겨담아야 할 듯
+    const chooseTab = (target: number) =>{
+        if (tab === target) return;
+        setTab(target);
+        switch (target) {
+            case TAB.RECEIVED:
+                setTabStyle([selectedTabStyle, otherTabStyle, otherTabStyle]);
+                break;
+            case TAB.CREATED:
+                setTabStyle([otherTabStyle, selectedTabStyle, otherTabStyle]);
+                break;
+            case TAB.MYINFO:
+                setTabStyle([otherTabStyle, otherTabStyle, selectedTabStyle]);
+                break;
+            default:
+                break;
+        }
+    }
     // Carousel 방식으로 개선하면 더 좋을 듯
     // 현재 몇 페이지를 보고 있는지에 대한 정보도 Params로 넣어야 할 듯
     return(
@@ -129,14 +155,14 @@ export default function UserInfo() {
                     </div>
                 )}
                  <div className="flex flex-row gap-2 justify-center pt-3">
-                    <button type="button" className="btn btn-dark btn-sm" style={{borderRadius: "30px"}}>받은 쿠키</button>
-                    <button type="button" className="btn btn-outline-dark btn-sm" style={{borderRadius: "30px"}}>만든 쿠키</button>
-                    <Link href="/join"><button type="button" className="btn btn-outline-dark btn-sm" style={{borderRadius: "30px"}}>회원 정보</button></Link>
+                    <button type="button" className={tabStyle[0]} style={{borderRadius: "30px"}} onClick={() => chooseTab(TAB.RECEIVED)}>받은 쿠키</button>
+                    <button type="button" className={tabStyle[1]} style={{borderRadius: "30px"}} onClick={() => chooseTab(TAB.CREATED)}>만든 쿠키</button>
+                    <button type="button" className={tabStyle[2]} style={{borderRadius: "30px"}} onClick={() => chooseTab(TAB.MYINFO)}>회원 정보</button>
                 </div>
             </header>
 
             <div className="flex flex-col row-start-2 items-center w-full h-5/6">
-                <CookieList cookies={cookieArray} pageId={pageId}/>
+                <ReceivedCookieList cookies={cookieArray} pageId={pageId}/>
             </div>
             <footer className="row-start-3 flex flex-col gap-3 items-center justify-center">
                 <div className="flex flex-row gap-3 pt-5">
@@ -157,7 +183,7 @@ export default function UserInfo() {
                             <span>&nbsp;&nbsp;쿠키 요청하기</span>
                         </button>
                         <Link href="/"><button type="button" className="btn btn-light">메인 페이지</button></Link> 
-                        { /* userId && <button className="btn btn-light" style={{color: "gray"}} onClick={logout}>로그아웃</button> */ }
+                        { userId && <button className="btn btn-light" style={{color: "gray"}} onClick={logout}>로그아웃</button> }
                     </div>
                 ) : (
                     <div className="flex flex-row gap-3">

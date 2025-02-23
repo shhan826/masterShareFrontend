@@ -24,12 +24,29 @@ export default function AddItem ()
     const [content, setContent] = useState('');
     const [sampleString, setSampleString] = useState('');
     const [isPublic, setIsPublic] = useState(true);
+    const [isClient, setIsClient] = useState(false);
+
     const searchParams = useSearchParams();
 
     const pageId = searchParams.get('pageId');
     const boardId = searchParams.get('boardId');
-    const backURL = pageId === 'random' ? '/' : '/userinfo?pageid=' + pageId;
+    const backURL = pageId === 'random' ? '/' : '/userinfo?pageId=' + pageId;
 
+    let userId = '';
+    if (isClient) {
+        userId = localStorage.getItem("userId") || '';
+    }
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+    // 로그인 안 되어 있는 경우, login 페이지로 바로 이동
+    useEffect(() => {
+        if (!isClient) return;
+        if (userId === null || userId === '') {
+            redirect('/login');
+        }
+    }, [userId]);
     useEffect(() => {
         // 1) 작성 예시 랜덤 적용
         const sampleStringArray = [
@@ -112,8 +129,8 @@ export default function AddItem ()
                     height={300}
                     className="opacity-50"
                 />
-                <div className='text-right w-5/6 mb-1 z-2'><input type="checkbox" checked={isPublic} onChange={onCheckBoxHandler}/><span> 전체 공개</span></div>
-                <button className='mx-3 btn btn-primary z-2' onClick={createCookie}>만들기</button>
+                <div className='text-center w-5/6 mb-2.5 z-2'><input type="checkbox" checked={isPublic} onChange={onCheckBoxHandler}/><span> 전체 공개</span></div>
+                <button className='mx-3 btn btn-primary z-2' onClick={createCookie}>쿠키 만들기</button>
             </div>
             <div className='absolute flex flex-col justify-center items-center w-full h-dvh z-1'>
                 <div className='text-left w-5/6 mb-1'>
