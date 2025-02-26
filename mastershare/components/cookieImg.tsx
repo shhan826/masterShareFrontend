@@ -26,7 +26,7 @@ export default function CookieImg (props: ImgProps)
     const title = cookieData.title;
     const isOpen = cookieData.opened;
     const msgId = cookieData.messageId;
-    const link = '/userinfo/revealItem?msgid=' + msgId + '&pageid=' + pageId;
+    const link = '/userinfo/revealItem?msgid=' + msgId + '&pageId=' + pageId;
 
     let accessToken = '';
     let refreshToken = '';

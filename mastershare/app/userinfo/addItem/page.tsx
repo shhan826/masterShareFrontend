@@ -23,7 +23,7 @@ export default function AddItem ()
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [sampleString, setSampleString] = useState('');
-    const [isPublic, setIsPublic] = useState(true);
+    const [isPublic, setIsPublic] = useState(false);
     const [isClient, setIsClient] = useState(false);
 
     const searchParams = useSearchParams();
@@ -44,9 +44,9 @@ export default function AddItem ()
     useEffect(() => {
         if (!isClient) return;
         if (userId === null || userId === '') {
-            redirect('/login');
+            redirect('/login?target=' + backURL);
         }
-    }, [userId]);
+    }, [userId, isClient]);
     useEffect(() => {
         // 1) 작성 예시 랜덤 적용
         const sampleStringArray = [
@@ -129,7 +129,12 @@ export default function AddItem ()
                     height={300}
                     className="opacity-50"
                 />
-                <div className='text-center w-5/6 mb-2.5 z-2'><input type="checkbox" checked={isPublic} onChange={onCheckBoxHandler}/><span> 전체 공개</span></div>
+                { pageId !== 'random' && 
+                    <div className='text-right w-5/6 mb-2.5 z-2'>
+                        <input type="checkbox" checked={isPublic} onChange={onCheckBoxHandler}/>
+                        <span> 쿠키 주인에게만 공개</span>
+                    </div>
+                }
                 <button className='mx-3 btn btn-primary z-2' onClick={createCookie}>쿠키 만들기</button>
             </div>
             <div className='absolute flex flex-col justify-center items-center w-full h-dvh z-1'>
