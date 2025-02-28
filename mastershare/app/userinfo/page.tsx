@@ -1,27 +1,21 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from 'next/link'
 import Image from "next/image";
 import localFont from "next/font/local";
 import { useSearchParams } from 'next/navigation'
 import ReceivedCookieList from "@/components/receivedCookieList";
-import { BoardResult, CookieContent, MsgListResult } from "@/lib/type";
-import { getBoardAPI, getMessageListAPI } from "@/lib/util";
+import { BoardResult } from "@/lib/type";
+import { getBoardAPI } from "@/lib/util";
 import CreatedCookieList from "@/components/createdCookieList";
 import EditMyInfo from "@/components/editMyInfo";
+import { TAB } from "@/lib/constant";
 
 const pretendardBold = localFont({
     src: "../fonts/Pretendard-Bold.woff",
     display: 'swap',
   });
-
-const TAB = {
-    RECEIVED: 0,
-    CREATED: 1,
-    MYINFO: 2
-};
-
 const selectedTabStyle = "btn btn-dark btn-sm";
 const otherTabStyle = "btn btn-outline-dark btn-sm";
   
@@ -30,8 +24,7 @@ export default function UserInfo() {
     const [boardId, setBoardId] = useState(0);
     const [tab, setTab] = useState(TAB.RECEIVED);
     const [tabStyle, setTabStyle] = useState([selectedTabStyle, otherTabStyle, otherTabStyle]);
-
-    const searchParams = useSearchParams();
+    const [isMyPage, setIsMyPage] = useState(false);
     const [isClient, setIsClient] = useState(false);
 
     let userId = '';
@@ -39,29 +32,12 @@ export default function UserInfo() {
         userId = localStorage.getItem("userId") || '';
     }
 
+    const searchParams = useSearchParams();
     const pageId = searchParams.get('pageId');
+    const originTab = searchParams.get('tab');
     const name = (nickName === '') ? '회원' : nickName;
-    const isMyPage = (userId === pageId);
 
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
-    useEffect(() => {
-        if (pageId === null) return;
-        getBoardAPI(pageId)
-        .then((result) => handleBoardResult(result));
-    }, [pageId]);
-
-    const handleBoardResult = (result: BoardResult) => {
-        setNickName(result.data.nickname);
-        setBoardId(result.data.boards[0].boardId);
-    }
-    const share = () => {
-        navigator.clipboard.writeText(window.location.href);
-        alert('내 페이지 주소가 복사되었습니다. 친구들에게 공유해보세요.');
-    };
-
-    const chooseTab = (target: number) =>{
+    const chooseTab = useCallback((target: number) =>{
         if (tab === target) return;
         setTab(target);
         switch (target) {
@@ -77,9 +53,33 @@ export default function UserInfo() {
             default:
                 break;
         }
+    }, [tab]);
+
+    if (originTab) {
+        chooseTab(Number(originTab));
     }
-    // Carousel 방식으로 개선하면 더 좋을 듯
-    // 현재 몇 페이지를 보고 있는지에 대한 정보도 Params로 넣어야 할 듯
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+    useEffect(() => {
+        setIsMyPage(userId === pageId);
+    }, [userId, pageId]);
+    useEffect(() => {
+        if (pageId === null) return;
+        getBoardAPI(pageId)
+        .then((result) => handleBoardResult(result));
+    }, [pageId]);
+
+    const handleBoardResult = (result: BoardResult) => {
+        setNickName(result.data.nickname);
+        setBoardId(result.data.boards[0].boardId);
+    }
+    const share = () => {
+        navigator.clipboard.writeText(window.location.href);
+        alert('내 페이지 주소가 복사되었습니다. 친구들에게 공유해보세요.');
+    };
+
     return(
         <div className="grid grid-rows-[100px_1fr_80px] items-center justify-items-center min-h-dvh p-6 pb-10 gap-1">
             <header className="row-start-1 gap-3 items-center justify-center text-center pt-0">
@@ -110,8 +110,8 @@ export default function UserInfo() {
             </header>
             <div className="flex flex-col row-start-2 items-center w-full h-5/6 pt-3">
                 { tab === TAB.RECEIVED && <ReceivedCookieList pageId={pageId} boardId={boardId}/> }
-                { tab === TAB.CREATED && <CreatedCookieList pageId={pageId} boardId={boardId}/> }
-                { tab === TAB.MYINFO && <EditMyInfo/>}
+                { tab === TAB.CREATED && <CreatedCookieList/> }
+                { tab === TAB.MYINFO && <EditMyInfo/> }
             </div>
             <footer className="row-start-3 flex flex-col gap-3 items-center justify-center">
                 { isMyPage ? (

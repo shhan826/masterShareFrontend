@@ -1,45 +1,55 @@
 'use client'
 
-import { CookieContent, MsgListResult } from "@/lib/type";
-import { getMessageListAPI } from "@/lib/util";
+import { CookieContent, MsgListResult, RefreshTokenResult } from "@/lib/type";
+import { getCreatedMessageListAPI, handleRefreshTokenFail, handleRefreshTokenSuccess, refreshTokenAPI } from "@/lib/util";
 import { useEffect, useState } from "react";
+import { redirect } from 'next/navigation'
+import { TAB } from "@/lib/constant";
 import { East_Sea_Dokdo } from 'next/font/google'
-
-interface CookieListProps {
-    pageId: string | null
-    boardId: number
-}
 
 const dokdoFont = East_Sea_Dokdo({
     preload: false,
     weight: ["400"]
 });
 
-export default function CreatedCookieList (props: CookieListProps)
+export default function CreatedCookieList ()
 {
-    const {pageId, boardId} = props;
     const [hasPrev, setHasPrev] = useState(false);
     const [hasNext, setHasNext] = useState(false);
     const [prevPage, setPrevPage] = useState(1);
     const [nextPage, setNextPage] = useState(2);
     const [currentPage, setCurrentPage] = useState(1);
     const [lastPage, setLastPage] = useState(1);
+    const [isClient, setIsClient] = useState(false);
     const [cookieArray, setCookieArray] = useState<CookieContent[]>([{
         messageId: -1,
         sender: '관리자', 
-        title: '기본 제공 쿠키', 
-        content: '새해 복 많이 받으세요!',
-        opened: false,
+        title: '제목', 
+        content: '만든 쿠키 내역이 없습니다.',
+        opened: true,
+        isPublic: true,
         createdAt: ''
     }]);
 
-    useEffect(() => {
-        if (boardId === 0) return;
-        getMessageListAPI(boardId, 1, 6)
-        .then((result) => handleMsgListResult(result));
-    }, [boardId]);
+    let accessToken = '';
+    let refreshToken = '';
+    let userId = '';
+    if (isClient) {
+        accessToken = localStorage.getItem('accessToken') || '';
+        refreshToken = localStorage.getItem('refreshToken') || '';
+        userId = localStorage.getItem("userId") || '';
+    }
 
-    const handleMsgListResult = (result: MsgListResult) => {
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+    useEffect(() => {
+        if (userId === '') return;
+        getCreatedMessageListAPI(userId, accessToken, 1, 6)
+        .then((result) => handleMsgListResult(result));
+    }, [userId, accessToken]);
+
+    const setMsgList = (result: MsgListResult) => {
         const resultData = result.data;
         const dataList = resultData.dataList;
         if (dataList !== undefined && dataList.length >= 1) {
@@ -51,17 +61,45 @@ export default function CreatedCookieList (props: CookieListProps)
         setLastPage(resultData.lastPage);
         setPrevPage(resultData.prevPage);
         setNextPage(resultData.nextPage);
+    }
+    const handleMsgListResult = (result: MsgListResult) => {
+        if (result.success === false && result.error.code === 401) {
+            refreshTokenAPI(accessToken, refreshToken)
+            .then((result) => handleRefreshTokenOnMsgCreateList(result));
+        } else if (result.success === true) {
+            setMsgList(result);
+        } 
     };
-    
+    const handleRefreshTokenOnMsgCreateList = (result: RefreshTokenResult) => {
+        if (userId === '') return;
+        if (result.success) {
+            const newAccessToken = handleRefreshTokenSuccess(result);
+            getCreatedMessageListAPI(userId, newAccessToken, 1, 6)
+            .then((result) => {
+                if (result.success) { 
+                    setMsgList(result);
+                } else {
+                    alert('잘못된 접근입니다.');
+                }
+            });
+        } else {
+            handleRefreshTokenFail();
+        }
+    };
     const movePrevPage = () => {
-        if (hasPrev === false || boardId === 0) return;
-        getMessageListAPI(boardId, prevPage, 6)
+        if (hasPrev === false || userId === '') return;
+        getCreatedMessageListAPI(userId, accessToken, prevPage, 6)
         .then((result) => handleMsgListResult(result));
     };
     const moveNextPage = () => {
-        if (hasNext === false || boardId === 0) return;
-        getMessageListAPI(boardId, nextPage, 6)
+        if (hasNext === false || userId === '') return;
+        getCreatedMessageListAPI(userId, accessToken, nextPage, 6)
         .then((result) => handleMsgListResult(result));
+    };
+    const openMessage = (msgId: number) => {
+        if (msgId === -1) return;
+        const link = '/userinfo/revealItem?msgid=' + msgId + '&pageId=' + userId + '&tab=' + TAB.CREATED;
+        redirect(link);
     };
 
     return(
@@ -69,7 +107,7 @@ export default function CreatedCookieList (props: CookieListProps)
             <div className="flex flex-col justify-center gap-4">
                 {cookieArray.map((cookie) => (      
                     <div key={cookie.messageId} className="flex justify-center">
-                        <button className="bg-white shadlow-xl pl-7 pr-7 p-1.5 text-xl">
+                        <button className="bg-white shadlow-xl pl-7 pr-7 p-1.5 text-xl" onClick={() => openMessage(cookie.messageId)}>
                             <span className={dokdoFont.className}>{cookie.content}</span>
                         </button>
                     </div>

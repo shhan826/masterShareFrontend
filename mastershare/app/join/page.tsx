@@ -9,6 +9,7 @@ import { joinAPI } from "@/lib/util";
 export default function Join() {
     const [id, setId] = useState('');
     const [password, setPassword] = useState('');
+    const [passwordConfirm, setPasswordConfirm] = useState('');
     const [nickName, setNickName] = useState('');
     const [email, setEmail] = useState('');
     
@@ -17,6 +18,9 @@ export default function Join() {
     }
     const onPasswordHandler = (event: React.FormEvent<HTMLInputElement>) => {
         setPassword(event.currentTarget.value);
+    }
+    const onPasswordConfirmHandler = (event: React.FormEvent<HTMLInputElement>) => {
+        setPasswordConfirm(event.currentTarget.value);
     }
     const onNickNameHandler = (event: React.FormEvent<HTMLInputElement>) => {
         setNickName(event.currentTarget.value);
@@ -35,6 +39,9 @@ export default function Join() {
             return false;
         } else if (password === '') {
             alert('비밀번호를 입력해주세요');
+            return false;
+        } else if (password != passwordConfirm) {
+            alert('비밀번호가 일치하지 않습니다. 다시 확인해주세요.');
             return false;
         } else if (email === '') {
             alert('이메일 주소를 입력해주세요.');
@@ -82,12 +89,14 @@ export default function Join() {
                     <input className='border-2 rounded-md' type='text' onChange={onIdHandler} onKeyDown={onJoinEnter}/> <br/>
                     <label>비밀번호: </label>
                     <input className='border-2 rounded-md' type='password' onChange={onPasswordHandler} onKeyDown={onJoinEnter}/> <br/>
+                    <label>비밀번호 확인: </label>
+                    <input className='border-2 rounded-md' type='password' onChange={onPasswordConfirmHandler} onKeyDown={onJoinEnter}/> <br/>
                     <label>이메일: </label>
                     <input className='border-2 rounded-md' type='email' onChange={onEmailHandler} onKeyDown={onJoinEnter}/> <br/>
                     <label>이름(닉네임): </label>
                     <input className='border-2 rounded-md' type='text' onChange={onNickNameHandler} onKeyDown={onJoinEnter}/> <br/>
                 </form>
-                <button className='btn btn-primary btn-sm' onClick={join}>회원 가입</button>
+                <button className='btn btn-primary btn-sm' onClick={join}>가입하기</button>
             </div>
         </div>
     );

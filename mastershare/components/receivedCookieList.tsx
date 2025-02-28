@@ -1,7 +1,7 @@
 'use client'
 
 import { CookieContent, MsgListResult } from "@/lib/type";
-import { getMessageListAPI } from "@/lib/util";
+import { getReceivedMessageListAPI } from "@/lib/util";
 import { useEffect, useState } from "react";
 import CookieImg from "./cookieImg";
 
@@ -25,12 +25,28 @@ export default function ReceivedCookieList (props: CookieListProps)
         title: '기본 제공 쿠키', 
         content: '새해 복 많이 받으세요!',
         opened: false,
+        isPublic: true,
         createdAt: ''
     }]);
+    const imgSize = 95;
+    const cookieArray1 = [];
+    const cookieArray2 = [];
+    const cookieArray3 = [];
+    for (let i = 0; i < cookieArray.length; i++) {
+        if (i < 2) {
+            cookieArray1.push(cookieArray[i]);
+        } else if (i < 4) {
+            cookieArray2.push(cookieArray[i]);
+        } else if (i < 6) {
+            cookieArray3.push(cookieArray[i]);
+        } else {
+            break;
+        }
+    }
 
     useEffect(() => {
         if (boardId === 0) return;
-        getMessageListAPI(boardId, 1, 6)
+        getReceivedMessageListAPI(boardId, 1, 6)
         .then((result) => handleMsgListResult(result));
     }, [boardId]);
 
@@ -47,31 +63,14 @@ export default function ReceivedCookieList (props: CookieListProps)
         setPrevPage(resultData.prevPage);
         setNextPage(resultData.nextPage);
     };
-
-    const imgSize = 95;
-    const cookieArray1 = [];
-    const cookieArray2 = [];
-    const cookieArray3 = [];
-    for (let i = 0; i < cookieArray.length; i++) {
-        if (i < 2) {
-            cookieArray1.push(cookieArray[i]);
-        } else if (i < 4) {
-            cookieArray2.push(cookieArray[i]);
-        } else if (i < 6) {
-            cookieArray3.push(cookieArray[i]);
-        } else {
-            break;
-        }
-    }
-    
     const movePrevPage = () => {
         if (hasPrev === false || boardId === 0) return;
-        getMessageListAPI(boardId, prevPage, 6)
+        getReceivedMessageListAPI(boardId, prevPage, 6)
         .then((result) => handleMsgListResult(result));
     };
     const moveNextPage = () => {
         if (hasNext === false || boardId === 0) return;
-        getMessageListAPI(boardId, nextPage, 6)
+        getReceivedMessageListAPI(boardId, nextPage, 6)
         .then((result) => handleMsgListResult(result));
     };
 

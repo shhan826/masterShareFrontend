@@ -6,14 +6,18 @@ interface ResultBase {
     }
 };
 
+interface UserInfo {
+    userKey: string,
+    username: string,
+    email: string,
+    nickname: string
+};
+interface UserInfoData {
+    data: UserInfo
+};
 interface JoinData {
     data: {
-        userInfo: {
-            userKey: string,
-            username: string,
-            email: string,
-            nickname: string
-        },
+        userInfo: UserInfo,
         accessToken: string,
         refreshToken: string
     }
@@ -67,6 +71,7 @@ export interface CookieContent {
     title: string,
     content: string,
     opened: boolean,
+    isPublic: boolean,
     createdAt: string,
 };
 interface MsgListData {
@@ -112,6 +117,7 @@ export type MsgUpdateResult = ResultBase & MsgUpdateData;
 export type MsgListResult = ResultBase & MsgListData;
 export type BoardResult = ResultBase & BoardData;
 export type RefreshTokenResult = ResultBase & RefreshTokenData;
+export type UserInfoResult = ResultBase & UserInfoData;
 
 export interface JoinInput {
     username: string,
@@ -119,6 +125,10 @@ export interface JoinInput {
     email: string,
     nickname: string
 };
+export interface EditUserInfoInput {
+    email: string,
+    nickname: string
+}
 export interface LoginInput {
     username: string,
     password: string
@@ -126,7 +136,8 @@ export interface LoginInput {
 export interface CreateCookieInput {
     sender: string,
     title: string,
-    content: string
+    content: string,
+    isPublic: boolean
 };
 export interface UpdateMsgInput {
     title?: string,

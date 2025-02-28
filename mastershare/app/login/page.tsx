@@ -5,6 +5,7 @@ import { redirect, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { LoginInput, LoginResult } from "@/lib/type";
 import { loginAPI } from "@/lib/util";
+import CloseX from "@/components/closeX";
 
 export default function Login() {
     const [password, setPassword] = useState('');
@@ -17,9 +18,10 @@ export default function Login() {
     if (typeof window !== 'undefined') {
         userId = localStorage.getItem('userId') || '';
     }
+
     // 이미 로그인 되어 있는 경우, userinfo로 바로 이동
     useEffect(() => {
-        if (userId !== null && userId !== '') {
+        if (userId && userId !== '') {
             redirect('/userinfo?pageId=' + userId);
         }
     }, [userId]);
@@ -75,9 +77,12 @@ export default function Login() {
         loginAPI(input)
         .then(result => handleLoginResult(result));
     };
-    // TODO: Back URL 받아서 닫기 버튼 우상단에 추가하면 좋을 듯
+
     return(
         <div>
+            <div className='absolute w-full text-right z-2'>
+                <CloseX backURL={targetUrl || '/'}/>
+            </div>
             <div className='flex flex-col justify-center items-center w-full h-dvh'>
                 <h5 className='font-bold'>로그인이 필요합니다.</h5><br/>
                 <form className='flex flex-col'>

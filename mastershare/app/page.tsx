@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from 'next/link'
 
 export default function Home() {
-  // TODO: random cookie open api
   return (
     <div className="grid grid-rows-[80px_1fr_20px] items-center justify-items-center min-h-dvh p-9 pb-20 gap-10">
       <header className="row-start-1 flex gap-6 flex-wrap items-center justify-center text-center">

@@ -5,8 +5,8 @@ import { redirect, useSearchParams } from "next/navigation";
 import { East_Sea_Dokdo } from 'next/font/google'
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { CreateCookieInput, CreateCookieResult } from "@/lib/type";
-import { createMessageAPI } from "@/lib/util";
+import { CreateCookieInput, CreateCookieResult, RefreshTokenResult } from "@/lib/type";
+import { createMessageAPI, createRandomMessageAPI, handleRefreshTokenFail, handleRefreshTokenSuccess, refreshTokenAPI } from "@/lib/util";
 
 const dokdoFont = East_Sea_Dokdo({
     preload: false,
@@ -16,14 +16,13 @@ const dokdoFont = East_Sea_Dokdo({
 export default function AddItem ()
 {
     // TODO: 폰트, 이미지 등 다양한 옵션으로 쿠키를 설정할 수 있게 하면 재밌을 듯
-    // TODO: 닫은 후에 해당 쿠키가 속한 리스트로 찾아 돌아갈 수 있게 수정
     const ref = useRef<HTMLTextAreaElement>(null);
 
     const [sender, setSender] = useState('익명의 글쓴이');
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [sampleString, setSampleString] = useState('');
-    const [isPublic, setIsPublic] = useState(false);
+    const [isPublic, setIsPublic] = useState(true);
     const [isClient, setIsClient] = useState(false);
 
     const searchParams = useSearchParams();
@@ -32,22 +31,26 @@ export default function AddItem ()
     const boardId = searchParams.get('boardId');
     const backURL = pageId === 'random' ? '/' : '/userinfo?pageId=' + pageId;
 
+    let accessToken = '';
+    let refreshToken = '';
     let userId = '';
+    let nickName = '';
     if (isClient) {
+        accessToken = localStorage.getItem('accessToken') || '';
+        refreshToken = localStorage.getItem('refreshToken') || '';
         userId = localStorage.getItem("userId") || '';
+        nickName = localStorage.getItem('nickName') || '';
     }
 
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
-    // 로그인 안 되어 있는 경우, login 페이지로 바로 이동
     useEffect(() => {
         if (!isClient) return;
         if (userId === null || userId === '') {
             redirect('/login?target=' + backURL);
         }
-    }, [userId, isClient]);
+    }, [userId, isClient, backURL]);
     useEffect(() => {
+        // 0) 클라이언트용 코드 구분
+        setIsClient(true);
         // 1) 작성 예시 랜덤 적용
         const sampleStringArray = [
             '좋은 인연을\n만나게 될 지도?',
@@ -59,14 +62,13 @@ export default function AddItem ()
         ];
         const sampleStringIndex = Math.floor(Math.random() * 6);
         setSampleString(sampleStringArray[sampleStringIndex]);
-        // 2) 닉네임 있으면 작성자 이름으로 사용
-        const nickName = localStorage.getItem('nickName');
-        if (nickName && nickName !== '') setSender(nickName);
     }, []);
+    useEffect(() => {
+        if (nickName && nickName !== '') setSender(nickName);
+    }, [nickName]);
 
     const onTextContentHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setContent(e.target.value);
-
         const length = content.length;
         const target = ref.current;
         if (target === null) return;
@@ -84,7 +86,6 @@ export default function AddItem ()
     };
     const onCheckBoxHandler = () => {
         setIsPublic(!isPublic);
-        // TODO: isPublic 정보 사용
     }
     const checkInputInfo = () => {
         if (content === '') {
@@ -93,14 +94,32 @@ export default function AddItem ()
         }
         return true;
     }
-    const handleCreateCookie = (result: CreateCookieResult) => {
-        if (result !== undefined) {
+    const handleCreateCookie = (input: CreateCookieInput, result: CreateCookieResult) => {
+        if (result.success === false && result.error.code === 401) {
+            refreshTokenAPI(accessToken, refreshToken)
+            .then((result) => handleRefreshTokenOnMsgCreate(input, result));
+        } else if (result.success === true) {
             alert('정상적으로 쿠키가 등록되었습니다.');
+            redirect(backURL);
         } 
-        redirect(backURL);
     }
+    const handleRefreshTokenOnMsgCreate = (input: CreateCookieInput, result: RefreshTokenResult) => {
+        if (result.success) {
+            const newAccessToken = handleRefreshTokenSuccess(result);
+            if (pageId === 'random') {
+                createRandomMessageAPI(input, newAccessToken);
+            } else {
+                if (!boardId) return;
+                createMessageAPI(Number(boardId), input, accessToken);
+            }
+            alert('정상적으로 쿠키가 등록되었습니다.');
+            redirect(backURL);
+        } else {
+            handleRefreshTokenFail();
+        }
+    };
     const createCookie = () => {
-        if (checkInputInfo() === false || boardId ===  null) return;
+        if (checkInputInfo() === false) return;
         let adjustedTitle = title;
         if (title === '') {
             adjustedTitle = (content.length > 10) ? (content.substring(0, 8) + "..") : content;
@@ -108,10 +127,17 @@ export default function AddItem ()
         const input: CreateCookieInput = {
             sender: sender,
             title: adjustedTitle,
-            content: content
+            content: content,
+            isPublic: isPublic
         }
-        createMessageAPI(boardId, input)
-        .then((result) => handleCreateCookie(result));
+        if (pageId === 'random') {
+            createRandomMessageAPI(input, accessToken)
+            .then((result) => handleCreateCookie(input, result));
+        } else {
+            if (!boardId) return;
+            createMessageAPI(Number(boardId), input, accessToken)
+            .then((result) => handleCreateCookie(input, result));
+        }
     };
 
     return(
@@ -132,7 +158,7 @@ export default function AddItem ()
                 { pageId !== 'random' && 
                     <div className='text-right w-5/6 mb-2.5 z-2'>
                         <input type="checkbox" checked={isPublic} onChange={onCheckBoxHandler}/>
-                        <span> 쿠키 주인에게만 공개</span>
+                        <span> 전체 공개</span>
                     </div>
                 }
                 <button className='mx-3 btn btn-primary z-2' onClick={createCookie}>쿠키 만들기</button>

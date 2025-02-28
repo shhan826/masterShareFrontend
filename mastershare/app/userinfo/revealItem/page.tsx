@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import Link from 'next/link'
-import { East_Sea_Dokdo } from 'next/font/google'
 import { useEffect, useRef, useState } from "react";
 import { redirect, useSearchParams } from 'next/navigation'
 import CloseX from "@/components/closeX";
 import { MsgUpdateResult, MsgRevealResult, RefreshTokenResult } from "@/lib/type";
-import { updateMessageAPI, getMessageAPI, refreshTokenAPI } from "@/lib/util";
+import { updateMessageAPI, getMessageAPI, refreshTokenAPI, getRandomMessageAPI, handleRefreshTokenSuccess, handleRefreshTokenFail } from "@/lib/util";
+import { East_Sea_Dokdo } from 'next/font/google'
 
 const dokdoFont = East_Sea_Dokdo({
     preload: false,
@@ -15,12 +15,11 @@ const dokdoFont = East_Sea_Dokdo({
 });
 
 export default function RevealItem () {
+    // TODO: 처음 열 때는 클릭해서 쿠키를 부수는 게임적인 요소 추가하면 재미있을듯
     const msgBoxRef = useRef<HTMLDivElement>(null);
 
     const [messageString, setMessageString] = useState('');
     const [writerNickName, setWriterNickName] = useState('');
-
-    const searchParams = useSearchParams();
     const [isClient, setIsClient] = useState(false);
 
     let accessToken = '';
@@ -31,10 +30,14 @@ export default function RevealItem () {
         refreshToken = localStorage.getItem('refreshToken') || '';
         userId = localStorage.getItem("userId") || '';
     }
+
+    const searchParams = useSearchParams();
     const pageId = searchParams.get('pageId');
     const msgId = searchParams.get('msgid');
+    const tab = searchParams.get('tab');
+    
     const isMyPage = (userId === pageId);
-    const backURL = pageId === 'random' ? '/' : '/userinfo?pageId=' + pageId;
+    const backURL = pageId === 'random' ? '/' : '/userinfo?pageId=' + pageId + '&tab=' + tab;
     const cookieListURL = userId !== '' ? '/userinfo?pageId=' + userId : '/login';
 
     const onShareMessage = async () => {
@@ -50,7 +53,7 @@ export default function RevealItem () {
         if (confirm("삭제된 쿠키는 복원할 수 없습니다. 해당 쿠키를 정말로 삭제하시겠습니까?") === false) {
             return;
         }
-        updateMessageAPI(msgId, accessToken, { deleted: true })
+        updateMessageAPI(Number(msgId), accessToken, { deleted: true })
         .then((result) => handleMsgDelete(result));
     };
     const handleMsgDelete = (result: MsgUpdateResult) => {
@@ -64,13 +67,8 @@ export default function RevealItem () {
     const handleRefreshTokenOnMsgDelete = (result: RefreshTokenResult) => {
         if (msgId === null) return;
         if (result.success) {
-            const newAccessToken = result.data.accessToken;
-            const newRefreshToken = result.data.refreshToken;
-            if (isClient) {
-                localStorage.setItem('accessToken', newAccessToken);
-                localStorage.setItem('refreshToken', newRefreshToken);
-            }
-            updateMessageAPI(msgId, newAccessToken, { deleted: true })
+            const newAccessToken = handleRefreshTokenSuccess(result);
+            updateMessageAPI(Number(msgId), newAccessToken, { deleted: true })
             .then((result) => {
                 if (result.success) {
                     redirect(backURL);
@@ -79,14 +77,7 @@ export default function RevealItem () {
                 }
             });
         } else {
-            alert('로그인 정보가 만료되었습니다. 다시 로그인해주세요.');
-            if (isClient) {
-                localStorage.removeItem("userId");
-                localStorage.removeItem("nickName");
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("refreshToken");
-            }
-            redirect('/login');
+            handleRefreshTokenFail();
         }
     };
     const handleMsgReveal = (result: MsgRevealResult) => {
@@ -108,24 +99,23 @@ export default function RevealItem () {
         }, 1600)
     }, [msgBoxRef]);
     useEffect(() => {
-        // TODO: random message open
+        // random message
         if (pageId === 'random') {
-            setMessageString('랜덤 메시지 예시입니다.');
-            setWriterNickName('관리자');
+            getRandomMessageAPI()
+            .then((result) => handleMsgReveal(result));
             return;
         }
-        
+        // target message
         if (msgId === null) return;
         if (msgId === '-1') {
             setMessageString('새해 복 많이 받으세요!');
             setWriterNickName('관리자');
         } else if (msgId !== '') {
-            getMessageAPI(msgId, accessToken)
+            getMessageAPI(Number(msgId), accessToken)
             .then((result) => handleMsgReveal(result));
         }
-    }, [msgId, accessToken])
+    }, [msgId, pageId, accessToken])
 
-    // 처음 열 때는 클릭해서 쿠키를 부수는 게임적인 요소 추가하면 재미있을듯
     return(
         <div>
             <div className='absolute w-full text-right z-2'>
