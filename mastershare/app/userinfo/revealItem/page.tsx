@@ -1,13 +1,13 @@
 'use client'
 
 import Image from "next/image";
-import Link from 'next/link'
 import { useEffect, useRef, useState } from "react";
 import { redirect, useSearchParams } from 'next/navigation'
 import CloseX from "@/components/closeX";
-import { MsgUpdateResult, MsgRevealResult, RefreshTokenResult } from "@/lib/type";
-import { updateMessageAPI, getMessageAPI, refreshTokenAPI, getRandomMessageAPI, handleRefreshTokenSuccess, handleRefreshTokenFail } from "@/lib/util";
+import { MsgUpdateResult, MsgRevealResult, RefreshTokenResult, CreateCookieInput, BoardResult } from "@/lib/type";
+import { updateMessageAPI, getMessageAPI, refreshTokenAPI, getRandomMessageAPI, handleRefreshTokenSuccess, handleRefreshTokenFail, createMessageAPI, getBoardAPI } from "@/lib/util";
 import { East_Sea_Dokdo } from 'next/font/google'
+import { clientOrigin } from "@/lib/constant";
 
 const dokdoFont = East_Sea_Dokdo({
     preload: false,
@@ -20,6 +20,9 @@ export default function RevealItem () {
 
     const [messageString, setMessageString] = useState('');
     const [writerNickName, setWriterNickName] = useState('');
+    const [resultMsgId, setResultMsgId] = useState(-1);
+    const [title, setTitle] = useState('');
+    const [boardId, setBoardId] = useState(0);
     const [isClient, setIsClient] = useState(false);
 
     let accessToken = '';
@@ -37,11 +40,13 @@ export default function RevealItem () {
     const tab = searchParams.get('tab');
     
     const isMyPage = (userId === pageId);
-    const backURL = pageId === 'random' ? '/' : '/userinfo?pageId=' + pageId + '&tab=' + tab;
-    const cookieListURL = userId !== '' ? '/userinfo?pageId=' + userId : '/login';
+    const tabParam = tab ? '&tab=' + tab : '';
+    const backURL = (pageId === 'random') ? '/' : '/userinfo?pageId=' + pageId + tabParam;
+    const currentURL = '/userinfo/revealItem?msgid=' + resultMsgId + '&pageId=' + pageId;
 
-    const onShareMessage = async () => {
-        navigator.clipboard.writeText(window.location.href);
+    const onShareMessage = () => {
+        const clipboardText = clientOrigin + currentURL; 
+        navigator.clipboard.writeText(clipboardText);
         alert('현재 열린 쿠키의 주소가 복사되었습니다. 친구들과 공유해보세요!');
     };
     const onDeleteMessage = () => {
@@ -55,6 +60,26 @@ export default function RevealItem () {
         }
         updateMessageAPI(Number(msgId), accessToken, { deleted: true })
         .then((result) => handleMsgDelete(result));
+    };
+    const onSaveMessage = () => {
+        if (userId === null || userId === '') {
+            alert('로그인이 필요한 서비스입니다.');
+            redirect('/login?target=' + encodeURIComponent(currentURL));
+            return;
+        }
+        const input: CreateCookieInput = {
+            sender: writerNickName,
+            title: title,
+            content: messageString,
+            isPublic: true
+        };
+        // TODO: Refresh Token
+        createMessageAPI(Number(boardId), input, accessToken)
+        .then((result) => {
+            if (result.success === true) {
+                alert('정상적으로 쿠키가 등록되었습니다.');
+            }
+        });
     };
     const handleMsgDelete = (result: MsgUpdateResult) => {
         if (result.success === false && result.error.code === 401) {
@@ -84,11 +109,21 @@ export default function RevealItem () {
         if (result?.data === undefined) return;
         setMessageString(result.data.content);
         setWriterNickName(result.data.sender);
+        setResultMsgId(result.data.messageId);
+        setTitle(result.data.title);
     };
+    const handleBoardResult = (result: BoardResult) => {
+        setBoardId(result.data.boards[0].boardId);
+    }
 
     useEffect(() => {
         setIsClient(true);
     }, []);
+    useEffect(() => {
+        if (userId === null || userId === '') return;
+        getBoardAPI(userId)
+        .then((result) => handleBoardResult(result));
+    }, [userId]);
     useEffect(() => {
         setTimeout(() => {
             const msgBox = msgBoxRef.current;
@@ -100,7 +135,7 @@ export default function RevealItem () {
     }, [msgBoxRef]);
     useEffect(() => {
         // random message
-        if (pageId === 'random') {
+        if (pageId === 'random' && msgId === null) {
             getRandomMessageAPI()
             .then((result) => handleMsgReveal(result));
             return;
@@ -142,12 +177,7 @@ export default function RevealItem () {
                         />
                          <span>&nbsp;&nbsp;공유</span>
                     </button>
-                    <Link href={cookieListURL}>
-                        <button className='mx-2 btn btn-warning'>
-                            <span>🍪&nbsp;&nbsp;쿠키 목록</span>
-                        </button>
-                    </Link>
-                    { isMyPage && 
+                    { isMyPage ? (
                         <button className='mx-2 btn btn-light' onClick={onDeleteMessage}>
                             <Image
                                 src="/delete.svg"
@@ -158,7 +188,18 @@ export default function RevealItem () {
                             />
                             <span>&nbsp;&nbsp;버리기</span>
                         </button>
-                    }
+                    ) : (
+                        <button className='mx-2 btn btn-light' onClick={onSaveMessage}>
+                            <Image
+                                src="/save.svg"
+                                alt="save"
+                                width={20}
+                                height={20}
+                                className="inline-block"
+                            />
+                            <span>&nbsp;&nbsp;내 쿠키함에 저장</span>
+                        </button>
+                    )}
                 </div>
             </div>
             <div ref={msgBoxRef} className='absolute flex flex-col justify-center items-center w-full h-dvh z-1' style={{opacity: 0}}>

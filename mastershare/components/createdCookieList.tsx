@@ -2,9 +2,7 @@
 
 import { CookieContent, MsgListResult, RefreshTokenResult } from "@/lib/type";
 import { getCreatedMessageListAPI, handleRefreshTokenFail, handleRefreshTokenSuccess, refreshTokenAPI } from "@/lib/util";
-import { useEffect, useState } from "react";
-import { redirect } from 'next/navigation'
-import { TAB } from "@/lib/constant";
+import { useCallback, useEffect, useState } from "react";
 import { East_Sea_Dokdo } from 'next/font/google'
 
 const dokdoFont = East_Sea_Dokdo({
@@ -40,15 +38,6 @@ export default function CreatedCookieList ()
         userId = localStorage.getItem("userId") || '';
     }
 
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
-    useEffect(() => {
-        if (userId === '') return;
-        getCreatedMessageListAPI(userId, accessToken, 1, 6)
-        .then((result) => handleMsgListResult(result));
-    }, [userId, accessToken]);
-
     const setMsgList = (result: MsgListResult) => {
         const resultData = result.data;
         const dataList = resultData.dataList;
@@ -62,15 +51,8 @@ export default function CreatedCookieList ()
         setPrevPage(resultData.prevPage);
         setNextPage(resultData.nextPage);
     }
-    const handleMsgListResult = (result: MsgListResult) => {
-        if (result.success === false && result.error.code === 401) {
-            refreshTokenAPI(accessToken, refreshToken)
-            .then((result) => handleRefreshTokenOnMsgCreateList(result));
-        } else if (result.success === true) {
-            setMsgList(result);
-        } 
-    };
-    const handleRefreshTokenOnMsgCreateList = (result: RefreshTokenResult) => {
+
+    const handleRefreshTokenOnMsgCreateList = useCallback((result: RefreshTokenResult) => {
         if (userId === '') return;
         if (result.success) {
             const newAccessToken = handleRefreshTokenSuccess(result);
@@ -85,7 +67,15 @@ export default function CreatedCookieList ()
         } else {
             handleRefreshTokenFail();
         }
-    };
+    }, [userId]);
+    const handleMsgListResult = useCallback((result: MsgListResult) => {
+        if (result.success === false && result.error.code === 401) {
+            refreshTokenAPI(accessToken, refreshToken)
+            .then((result) => handleRefreshTokenOnMsgCreateList(result));
+        } else if (result.success === true) {
+            setMsgList(result);
+        } 
+    }, [accessToken, refreshToken, handleRefreshTokenOnMsgCreateList]);
     const movePrevPage = () => {
         if (hasPrev === false || userId === '') return;
         getCreatedMessageListAPI(userId, accessToken, prevPage, 6)
@@ -96,18 +86,28 @@ export default function CreatedCookieList ()
         getCreatedMessageListAPI(userId, accessToken, nextPage, 6)
         .then((result) => handleMsgListResult(result));
     };
-    const openMessage = (msgId: number) => {
-        if (msgId === -1) return;
-        const link = '/userinfo/revealItem?msgid=' + msgId + '&pageId=' + userId + '&tab=' + TAB.CREATED;
-        redirect(link);
-    };
+    // 기능 추가 기획 전까지 해당 기능 Block
+    // const openMessage = (msgId: number) => {
+    //     if (msgId === -1) return;
+    //     const link = '/userinfo/revealItem?msgid=' + msgId + '&pageId=' + userId + '&tab=' + TAB.CREATED;
+    //     redirect(link);
+    // };
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+    useEffect(() => {
+        if (userId === '') return;
+        getCreatedMessageListAPI(userId, accessToken, 1, 6)
+        .then((result) => handleMsgListResult(result));
+    }, [userId, accessToken, handleMsgListResult]);
 
     return(
         <div className="w-full h-full flex flex-col gap-3 justify-center">
             <div className="flex flex-col justify-center gap-4">
                 {cookieArray.map((cookie) => (      
                     <div key={cookie.messageId} className="flex justify-center">
-                        <button className="bg-white shadlow-xl pl-7 pr-7 p-1.5 text-xl" onClick={() => openMessage(cookie.messageId)}>
+                        <button className="bg-white shadlow-xl pl-7 pr-7 p-1.5 text-xl">
                             <span className={dokdoFont.className}>{cookie.content}</span>
                         </button>
                     </div>

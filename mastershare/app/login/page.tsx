@@ -12,7 +12,8 @@ export default function Login() {
     const [id, setId] = useState('');
 
     const searchParams = useSearchParams();
-    const targetUrl = searchParams.get('target');
+    const targetParam = searchParams.get('target')
+    const targetUrl = targetParam ? decodeURIComponent(targetParam) : '';
 
     let userId = '';
     if (typeof window !== 'undefined') {
@@ -81,7 +82,7 @@ export default function Login() {
     return(
         <div>
             <div className='absolute w-full text-right z-2'>
-                <CloseX backURL={targetUrl || '/'}/>
+                <CloseX backURL={(targetUrl && targetUrl !== '') ? targetUrl : '/'}/>
             </div>
             <div className='flex flex-col justify-center items-center w-full h-dvh'>
                 <h5 className='font-bold'>로그인이 필요합니다.</h5><br/>
@@ -93,7 +94,7 @@ export default function Login() {
                 </form>
                 <div>
                     <button className='mx-3 btn btn-primary btn-sm' onClick={login}>로그인</button>
-                    <Link className='mx-3 btn btn-secondary btn-sm' href='/join'><button>회원 가입</button></Link>
+                    <Link className='mx-3 btn btn-secondary btn-sm' href={(targetUrl && targetUrl !== '') ? '/join?target=' + encodeURIComponent(targetUrl) : '/join'}><button>회원 가입</button></Link>
                 </div>
             </div>
         </div>

@@ -4,13 +4,13 @@ import { useCallback, useEffect, useState } from "react";
 import Link from 'next/link'
 import Image from "next/image";
 import localFont from "next/font/local";
-import { useSearchParams } from 'next/navigation'
+import { redirect, useSearchParams } from 'next/navigation'
 import ReceivedCookieList from "@/components/receivedCookieList";
 import { BoardResult } from "@/lib/type";
 import { getBoardAPI } from "@/lib/util";
 import CreatedCookieList from "@/components/createdCookieList";
 import EditMyInfo from "@/components/editMyInfo";
-import { TAB } from "@/lib/constant";
+import { clientOrigin, TAB } from "@/lib/constant";
 
 const pretendardBold = localFont({
     src: "../fonts/Pretendard-Bold.woff",
@@ -34,8 +34,13 @@ export default function UserInfo() {
 
     const searchParams = useSearchParams();
     const pageId = searchParams.get('pageId');
+    if (!pageId || pageId === 'null') {
+        alert('잘못된 접근입니다.');
+        redirect('/');
+    }
     const originTab = searchParams.get('tab');
     const name = (nickName === '') ? '회원' : nickName;
+    const currentURL = '/userinfo?pageId=' + pageId;
 
     const chooseTab = useCallback((target: number) =>{
         if (tab === target) return;
@@ -54,14 +59,24 @@ export default function UserInfo() {
                 break;
         }
     }, [tab]);
-
-    if (originTab) {
-        chooseTab(Number(originTab));
+    const handleBoardResult = (result: BoardResult) => {
+        setNickName(result.data.nickname);
+        setBoardId(result.data.boards[0].boardId);
     }
+    const share = () => {
+        const clipboardText = clientOrigin + currentURL;
+        navigator.clipboard.writeText(clipboardText);
+        alert('내 페이지 주소가 복사되었습니다. 친구들에게 공유해보세요.');
+    };
 
     useEffect(() => {
         setIsClient(true);
     }, []);
+    useEffect(() => {
+        if (originTab) {
+            chooseTab(Number(originTab));
+        }
+    }, [originTab, chooseTab])
     useEffect(() => {
         setIsMyPage(userId === pageId);
     }, [userId, pageId]);
@@ -70,15 +85,6 @@ export default function UserInfo() {
         getBoardAPI(pageId)
         .then((result) => handleBoardResult(result));
     }, [pageId]);
-
-    const handleBoardResult = (result: BoardResult) => {
-        setNickName(result.data.nickname);
-        setBoardId(result.data.boards[0].boardId);
-    }
-    const share = () => {
-        navigator.clipboard.writeText(window.location.href);
-        alert('내 페이지 주소가 복사되었습니다. 친구들에게 공유해보세요.');
-    };
 
     return(
         <div className="grid grid-rows-[100px_1fr_80px] items-center justify-items-center min-h-dvh p-6 pb-10 gap-1">

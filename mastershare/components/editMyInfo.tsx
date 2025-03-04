@@ -1,8 +1,9 @@
 'use client'
+import { TAB } from '@/lib/constant';
 import { EditUserInfoInput, RefreshTokenResult, UserInfoResult } from '@/lib/type';
 import { editUserInfoAPI, getUserInfoAPI, handleRefreshTokenFail, handleRefreshTokenSuccess, logoutLocalStorage, refreshTokenAPI } from '@/lib/util';
 import { redirect } from 'next/navigation'
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function EditMyInfo() {
     const [id, setId] = useState('');
@@ -19,30 +20,13 @@ export default function EditMyInfo() {
         userId = localStorage.getItem("userId") || '';
     }
  
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
-    useEffect(() => {
-        if (userId === '') return;
-        getUserInfoAPI(userId, accessToken)
-        .then((result) => handleUserInfoResult(result));
-    }, [userId, accessToken])
-
-    const setUserInfo = (result: UserInfoResult) => {
+    const setUserInfo = useCallback((result: UserInfoResult) => {
         const resultData = result.data;
         setId(resultData.username);
         setEmail(resultData.email);
         setNickName(resultData.nickname);
-    }
-    const handleUserInfoResult = (result: UserInfoResult) => {
-        if (result.success === false && result.error.code === 401) {
-            refreshTokenAPI(accessToken, refreshToken)
-            .then((result) => handleRefreshTokenOnUserInfo(result));
-        } else if (result.success === true) {
-            setUserInfo(result);
-        }
-    };
-    const handleRefreshTokenOnUserInfo = (result: RefreshTokenResult) => {
+    }, []);
+    const handleRefreshTokenOnUserInfo = useCallback((result: RefreshTokenResult) => {
         if (result.success) {
             const newAccessToken = handleRefreshTokenSuccess(result);
             getUserInfoAPI(userId, newAccessToken)
@@ -56,7 +40,15 @@ export default function EditMyInfo() {
         } else {
             handleRefreshTokenFail();
         }
-    };
+    }, [userId, setUserInfo]);
+    const handleUserInfoResult = useCallback((result: UserInfoResult) => {
+        if (result.success === false && result.error.code === 401) {
+            refreshTokenAPI(accessToken, refreshToken)
+            .then((result) => handleRefreshTokenOnUserInfo(result));
+        } else if (result.success === true) {
+            setUserInfo(result);
+        }
+    }, [accessToken, refreshToken, handleRefreshTokenOnUserInfo, setUserInfo]);
     const logout = () => {
         logoutLocalStorage();
         alert('로그아웃 되었습니다.');
@@ -83,6 +75,7 @@ export default function EditMyInfo() {
         } else if (result.success === true) {
             localStorage.setItem("nickName", result.data.nickname);
             alert('회원 정보가 정상적으로 수정되었습니다.');
+            redirect('/userinfo?pageId=' + userId + '&tab=' + TAB.MYINFO);
         }
     };
     const handleRefreshTokenOnEditUserInfo = (input: EditUserInfoInput, result: RefreshTokenResult) => {
@@ -93,12 +86,22 @@ export default function EditMyInfo() {
                 if (result.success === true) {
                     localStorage.setItem("nickName", result.data.nickname);
                     alert('회원 정보가 정상적으로 수정되었습니다.');
+                    redirect('/userinfo?pageId=' + userId + '&tab=' + TAB.MYINFO);
                 }
             })
         } else {
             handleRefreshTokenFail();
         }
     };
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+    useEffect(() => {
+        if (userId === '') return;
+        getUserInfoAPI(userId, accessToken)
+        .then((result) => handleUserInfoResult(result));
+    }, [userId, accessToken, handleUserInfoResult])
 
     return(
         <div className='w-full h-full flex flex-col justify-center items-center gap-3'>

@@ -1,8 +1,6 @@
 import { BoardResult, CreateCookieInput, CreateCookieResult, JoinInput, JoinResult, LoginInput, LoginResult, MsgUpdateResult, MsgListResult, MsgRevealResult, RefreshTokenResult, UpdateMsgInput, UserInfoResult, EditUserInfoInput } from "./type";
 import { redirect } from 'next/navigation'
-
-const origin = "http://localhost:8080";
-// const origin = "https://www.lettergramapi.store";
+import { serverOrigin } from "./constant";
 
 const preFix = "/api/v1";
 
@@ -22,7 +20,7 @@ const authorizationFailResult = {
 }
 
 export async function joinAPI(input: JoinInput): Promise<JoinResult> {
-    const url = origin + preFix + "/auth/join";
+    const url = serverOrigin + preFix + "/auth/join";
     const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -37,7 +35,7 @@ export async function joinAPI(input: JoinInput): Promise<JoinResult> {
 };
 
 export async function loginAPI(input: LoginInput): Promise<LoginResult> {
-    const url = origin + preFix + "/auth/login"
+    const url = serverOrigin + preFix + "/auth/login"
     const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -52,7 +50,7 @@ export async function loginAPI(input: LoginInput): Promise<LoginResult> {
 };
 
 export async function createMessageAPI(boardId: number, input: CreateCookieInput, accessToken: string): Promise<CreateCookieResult> {
-    const url = origin + preFix + "/boards/" + boardId + "/messages";
+    const url = serverOrigin + preFix + "/boards/" + boardId + "/messages";
     const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -70,7 +68,7 @@ export async function createMessageAPI(boardId: number, input: CreateCookieInput
 };
 
 export async function createRandomMessageAPI(input: CreateCookieInput, accessToken: string): Promise<CreateCookieResult> {
-    const url = origin + preFix + "/boards/random/messages";
+    const url = serverOrigin + preFix + "/boards/random/messages";
     const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -88,7 +86,7 @@ export async function createRandomMessageAPI(input: CreateCookieInput, accessTok
 };
 
 export async function getMessageAPI(msgId: number, accessToken: string): Promise<MsgRevealResult> {
-    const url = origin + preFix + "/messages/" + msgId;
+    const url = serverOrigin + preFix + "/messages/" + msgId;
     const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -105,7 +103,7 @@ export async function getMessageAPI(msgId: number, accessToken: string): Promise
 };
 
 export async function getRandomMessageAPI(): Promise<MsgRevealResult> {
-    const url = origin + preFix + "/boards/random/messages";
+    const url = serverOrigin + preFix + "/boards/random/messages";
     const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -119,7 +117,7 @@ export async function getRandomMessageAPI(): Promise<MsgRevealResult> {
 }
 
 export async function updateMessageAPI(msgId: number, accessToken: string, input: UpdateMsgInput): Promise<MsgUpdateResult> {
-    const url = origin + preFix + "/messages/" + msgId;
+    const url = serverOrigin + preFix + "/messages/" + msgId;
     const response = await fetch(url, {
         method: "PUT",
         headers: {
@@ -137,7 +135,7 @@ export async function updateMessageAPI(msgId: number, accessToken: string, input
 };
 
 export async function getBoardAPI(userKey: string): Promise<BoardResult> {
-    const url = origin + preFix + "/users/" + userKey + "/boards";
+    const url = serverOrigin + preFix + "/users/" + userKey + "/boards";
     const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -153,7 +151,7 @@ export async function getBoardAPI(userKey: string): Promise<BoardResult> {
 export async function getReceivedMessageListAPI(boardId: number, page: number, size: number, opened?: boolean, deleted?: boolean): Promise<MsgListResult> {
     const openQuery = (opened !== undefined) ? "&opened=" + opened : "";
     const deleteQuery = (deleted  !== undefined) ? "&deleted=" + deleted : "";
-    const url = origin + preFix + "/boards/" + boardId + "/messages" + "?page=" + page + "&size=" + size + openQuery + deleteQuery;
+    const url = serverOrigin + preFix + "/boards/" + boardId + "/messages" + "?page=" + page + "&size=" + size + openQuery + deleteQuery;
     const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -169,7 +167,7 @@ export async function getReceivedMessageListAPI(boardId: number, page: number, s
 export async function getCreatedMessageListAPI(userKey: string, accessToken: string, page: number, size: number, opened?: boolean, deleted?: boolean): Promise<MsgListResult> {
     const openQuery = (opened !== undefined) ? "&opened=" + opened : "";
     const deleteQuery = (deleted  !== undefined) ? "&deleted=" + deleted : "";
-    const url = origin + preFix + "/users/" + userKey + "/messages" + "?page=" + page + "&size=" + size + openQuery + deleteQuery;
+    const url = serverOrigin + preFix + "/users/" + userKey + "/messages" + "?page=" + page + "&size=" + size + openQuery + deleteQuery;
     const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -186,7 +184,7 @@ export async function getCreatedMessageListAPI(userKey: string, accessToken: str
 };
 
 export async function getUserInfoAPI(userKey: string, accessToken: string): Promise<UserInfoResult> {
-    const url = origin + preFix + "/users/" + userKey;
+    const url = serverOrigin + preFix + "/users/" + userKey;
     const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -203,7 +201,7 @@ export async function getUserInfoAPI(userKey: string, accessToken: string): Prom
 }
 
 export async function editUserInfoAPI(userKey: string, accessToken: string, input: EditUserInfoInput): Promise<UserInfoResult> {
-    const url = origin + preFix + "/users/" + userKey;
+    const url = serverOrigin + preFix + "/users/" + userKey;
     const response = await fetch(url, {
         method: "PUT",
         headers: {
@@ -221,7 +219,7 @@ export async function editUserInfoAPI(userKey: string, accessToken: string, inpu
 }
 
 export async function refreshTokenAPI(accessToken: string, refreshToken: string): Promise<RefreshTokenResult> {
-    const url = origin + preFix + "/auth/token/refresh?refreshToken=" + refreshToken;
+    const url = serverOrigin + preFix + "/auth/token/refresh?refreshToken=" + refreshToken;
     const response = await fetch(url, {
         method: "GET",
         headers: {

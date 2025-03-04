@@ -30,7 +30,7 @@ export default function AddItem ()
     const pageId = searchParams.get('pageId');
     const boardId = searchParams.get('boardId');
     const backURL = pageId === 'random' ? '/' : '/userinfo?pageId=' + pageId;
-
+    
     let accessToken = '';
     let refreshToken = '';
     let userId = '';
@@ -45,7 +45,7 @@ export default function AddItem ()
     useEffect(() => {
         if (!isClient) return;
         if (userId === null || userId === '') {
-            redirect('/login?target=' + backURL);
+            redirect('/login?target=' + encodeURIComponent(backURL));
         }
     }, [userId, isClient, backURL]);
     useEffect(() => {

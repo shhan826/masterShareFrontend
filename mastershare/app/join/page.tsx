@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react";
-import { redirect } from 'next/navigation'
+import { redirect, useSearchParams } from 'next/navigation'
 import { JoinInput, JoinResult } from "@/lib/type";
 import { joinAPI } from "@/lib/util";
 
@@ -13,6 +13,10 @@ export default function Join() {
     const [nickName, setNickName] = useState('');
     const [email, setEmail] = useState('');
     
+    const searchParams = useSearchParams();
+    const targetParam = searchParams.get('target')
+    const targetUrl = targetParam ? decodeURIComponent(targetParam) : '';
+
     const onIdHandler = (event: React.FormEvent<HTMLInputElement>) => {
         setId(event.currentTarget.value);
     }
@@ -61,7 +65,11 @@ export default function Join() {
             localStorage.setItem("nickName", userInfo.nickname);
             localStorage.setItem("accessToken", resultData.accessToken);
             localStorage.setItem("refreshToken", resultData.refreshToken);
-            redirect('/login');
+            if (targetUrl && targetUrl !== '') {
+                redirect(targetUrl);
+            } else {
+                redirect('/login');
+            }
         } else {
             alert('이미 동일한 아이디로 가입된 계정이 있습니다. 다른 아이디로 가입해주세요.');
         }
