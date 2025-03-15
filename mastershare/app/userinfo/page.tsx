@@ -76,7 +76,7 @@ export default function UserInfo() {
         if (originTab) {
             chooseTab(Number(originTab));
         }
-    }, [originTab, chooseTab])
+    }, [originTab])
     useEffect(() => {
         setIsMyPage(userId === pageId);
     }, [userId, pageId]);

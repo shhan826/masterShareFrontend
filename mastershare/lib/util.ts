@@ -86,7 +86,7 @@ export async function createRandomMessageAPI(input: CreateCookieInput, accessTok
 };
 
 export async function getMessageAPI(msgId: number, accessToken: string): Promise<MsgRevealResult> {
-    const url = serverOrigin + preFix + "/messages/" + msgId;
+    const url = serverOrigin + preFix + "/messages/" + msgId + "/member";
     const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -99,6 +99,20 @@ export async function getMessageAPI(msgId: number, accessToken: string): Promise
     } else if (response.status === 401) {
         return authorizationFailResult as MsgRevealResult;
     }
+    return noResponseFailResult as MsgRevealResult;
+};
+
+export async function getMessageAPIGuest(msgId: number): Promise<MsgRevealResult> {
+    const url = serverOrigin + preFix + "/messages/" + msgId + "/guest";
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    if (response.ok) {
+        return response.json();
+    } 
     return noResponseFailResult as MsgRevealResult;
 };
 
@@ -148,10 +162,27 @@ export async function getBoardAPI(userKey: string): Promise<BoardResult> {
     return noResponseFailResult as BoardResult;
 };
 
-export async function getReceivedMessageListAPI(boardId: number, page: number, size: number, opened?: boolean, deleted?: boolean): Promise<MsgListResult> {
+export async function getReceivedMessageListAPI(boardId: number, accessToken: string, page: number, size: number, opened?: boolean, deleted?: boolean): Promise<MsgListResult> {
     const openQuery = (opened !== undefined) ? "&opened=" + opened : "";
     const deleteQuery = (deleted  !== undefined) ? "&deleted=" + deleted : "";
-    const url = serverOrigin + preFix + "/boards/" + boardId + "/messages" + "?page=" + page + "&size=" + size + openQuery + deleteQuery;
+    const url = serverOrigin + preFix + "/boards/" + boardId + "/messages/guest" + "?page=" + page + "&size=" + size + openQuery + deleteQuery;
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}`
+        }
+    });
+    if (response.ok) {
+        return response.json();
+    } else if (response.status === 401) {
+        return authorizationFailResult as MsgListResult;
+    }
+    return noResponseFailResult as MsgListResult;
+};
+
+export async function getReceivedMessageListAPIGuest(boardId: number, page: number, size: number): Promise<MsgListResult> {
+    const url = serverOrigin + preFix + "/boards/" + boardId + "/messages/guest" + "?page=" + page + "&size=" + size;
     const response = await fetch(url, {
         method: "GET",
         headers: {

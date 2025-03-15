@@ -1,7 +1,7 @@
 'use client'
 
 import { CookieContent, MsgListResult } from "@/lib/type";
-import { getReceivedMessageListAPI } from "@/lib/util";
+import { getReceivedMessageListAPI, getReceivedMessageListAPIGuest } from "@/lib/util";
 import { useEffect, useState } from "react";
 import CookieImg from "./cookieImg";
 
@@ -19,6 +19,7 @@ export default function ReceivedCookieList (props: CookieListProps)
     const [nextPage, setNextPage] = useState(2);
     const [currentPage, setCurrentPage] = useState(1);
     const [lastPage, setLastPage] = useState(1);
+    const [isClient, setIsClient] = useState(false);
     const [cookieArray, setCookieArray] = useState<CookieContent[]>([{
         messageId: -1,
         sender: '관리자', 
@@ -44,10 +45,28 @@ export default function ReceivedCookieList (props: CookieListProps)
         }
     }
 
+    let accessToken = '';
+    // let refreshToken = '';
+    let userId = '';
+    if (isClient) {
+        accessToken = localStorage.getItem('accessToken') || '';
+        // refreshToken = localStorage.getItem('refreshToken') || '';
+        userId = localStorage.getItem("userId") || '';
+    }
+    
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
     useEffect(() => {
         if (boardId === 0) return;
-        getReceivedMessageListAPI(boardId, 1, 6)
-        .then((result) => handleMsgListResult(result));
+        if (userId === '') {
+            getReceivedMessageListAPIGuest(boardId, 1, 6)
+            .then((result) => handleMsgListResult(result));
+        } else {
+            // TODO: Refresh Token
+            getReceivedMessageListAPI(boardId, accessToken, 1, 6)
+            .then((result) => handleMsgListResult(result));
+        }
     }, [boardId]);
 
     const handleMsgListResult = (result: MsgListResult) => {
@@ -65,13 +84,23 @@ export default function ReceivedCookieList (props: CookieListProps)
     };
     const movePrevPage = () => {
         if (hasPrev === false || boardId === 0) return;
-        getReceivedMessageListAPI(boardId, prevPage, 6)
-        .then((result) => handleMsgListResult(result));
+        if (userId === '') {
+            getReceivedMessageListAPIGuest(boardId, prevPage, 6)
+            .then((result) => handleMsgListResult(result));
+        } else {
+            getReceivedMessageListAPI(boardId, accessToken, prevPage, 6)
+            .then((result) => handleMsgListResult(result));
+        }
     };
     const moveNextPage = () => {
         if (hasNext === false || boardId === 0) return;
-        getReceivedMessageListAPI(boardId, nextPage, 6)
-        .then((result) => handleMsgListResult(result));
+        if (userId === '') {
+            getReceivedMessageListAPIGuest(boardId, nextPage, 6)
+            .then((result) => handleMsgListResult(result));
+        } else {
+            getReceivedMessageListAPI(boardId, accessToken, nextPage, 6)
+            .then((result) => handleMsgListResult(result));
+        }
     };
 
     return(

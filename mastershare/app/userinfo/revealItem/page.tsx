@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { redirect, useSearchParams } from 'next/navigation'
 import CloseX from "@/components/closeX";
 import { MsgUpdateResult, MsgRevealResult, RefreshTokenResult, CreateCookieInput, BoardResult } from "@/lib/type";
-import { updateMessageAPI, getMessageAPI, refreshTokenAPI, getRandomMessageAPI, handleRefreshTokenSuccess, handleRefreshTokenFail, createMessageAPI, getBoardAPI } from "@/lib/util";
+import { updateMessageAPI, getMessageAPI, refreshTokenAPI, getRandomMessageAPI, handleRefreshTokenSuccess, handleRefreshTokenFail, createMessageAPI, getBoardAPI, getMessageAPIGuest } from "@/lib/util";
 import { East_Sea_Dokdo } from 'next/font/google'
 import { clientOrigin } from "@/lib/constant";
 
@@ -146,8 +146,13 @@ export default function RevealItem () {
             setMessageString('새해 복 많이 받으세요!');
             setWriterNickName('관리자');
         } else if (msgId !== '') {
-            getMessageAPI(Number(msgId), accessToken)
-            .then((result) => handleMsgReveal(result));
+            if (userId === '') {
+                getMessageAPIGuest(Number(msgId))
+                .then((result) => handleMsgReveal(result));
+            } else {
+                getMessageAPI(Number(msgId), accessToken)
+                .then((result) => handleMsgReveal(result));
+            }
         }
     }, [msgId, pageId, accessToken])
 
