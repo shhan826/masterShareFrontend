@@ -6,18 +6,23 @@ import Link from 'next/link'
 import { LoginInput, LoginResult } from "@/lib/type";
 import { loginAPI } from "@/lib/util";
 import CloseX from "@/components/closeX";
+import koTranslation from '../../locales/ko/common.json';
+import enTranslation from '../../locales/en/common.json';
 
 export default function Login() {
     const [password, setPassword] = useState('');
     const [id, setId] = useState('');
+    const [translation, setTranslation] = useState(koTranslation);
 
     const searchParams = useSearchParams();
     const targetParam = searchParams.get('target')
     const targetUrl = targetParam ? decodeURIComponent(targetParam) : '';
 
     let userId = '';
+    let lang = '';
     if (typeof window !== 'undefined') {
         userId = localStorage.getItem('userId') || '';
+        lang = localStorage.getItem('lang') || window.navigator.language || '';
     }
 
     // 이미 로그인 되어 있는 경우, userinfo로 바로 이동
@@ -26,6 +31,13 @@ export default function Login() {
             redirect('/userinfo?pageId=' + userId);
         }
     }, [userId]);
+    useEffect(() => {
+        if (lang === 'ko' || lang === 'ko-KR') {
+            setTranslation(koTranslation);
+        } else {
+             setTranslation(enTranslation);
+        }
+      }, [lang]);
 
     const onPasswordHandler = (event: React.FormEvent<HTMLInputElement>) => {
         setPassword(event.currentTarget.value);
@@ -40,10 +52,10 @@ export default function Login() {
     }
     const checkInputInfo = () => {
         if (id === '') {
-            alert('아이디를 입력해주세요.');
+            alert(translation.login["id-fail-1"]);
             return false;
         } else if (password === '') {
-            alert('비밀번호를 입력해주세요.');
+            alert(translation.login["password-fail-1"]);
             return false;
         }
         return true;
@@ -64,7 +76,7 @@ export default function Login() {
                 redirect('/userinfo?pageId=' + userInfo.userKey);
             }
         } else {
-            alert('아이디, 혹은 비밀번호를 다시 한 번 확인해주세요.');
+            alert(translation.login["login-fail"]);
         }
     };
     const login = (event: React.FormEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
@@ -85,16 +97,16 @@ export default function Login() {
                 <CloseX backURL={(targetUrl && targetUrl !== '') ? targetUrl : '/'}/>
             </div>
             <div className='flex flex-col justify-center items-center w-full h-dvh'>
-                <h5 className='font-bold'>로그인이 필요합니다.</h5><br/>
+                <h5 className='font-bold'>{translation.login["login-title"]}</h5><br/>
                 <form className='flex flex-col'>
-                    <label>아이디: </label>
+                    <label>{translation.login.id}: </label>
                     <input className='border-2 rounded-md' type='text' onChange={onIdHandler} onKeyDown={onLoginEnter}/> <br/>
-                    <label>비밀번호: </label>
+                    <label>{translation.login.password}: </label>
                     <input className='border-2 rounded-md' type='password' onChange={onPasswordHandler} onKeyDown={onLoginEnter}/> <br/>
                 </form>
                 <div>
-                    <button className='mx-3 btn btn-primary btn-sm' onClick={login}>로그인</button>
-                    <Link className='mx-3 btn btn-secondary btn-sm' href={(targetUrl && targetUrl !== '') ? '/join?target=' + encodeURIComponent(targetUrl) : '/join'}><button>회원 가입</button></Link>
+                    <button className='mx-3 btn btn-primary btn-sm' onClick={login}>{translation.login.login}</button>
+                    <Link className='mx-3 btn btn-secondary btn-sm' href={(targetUrl && targetUrl !== '') ? '/join?target=' + encodeURIComponent(targetUrl) : '/join'}><button>{translation.login.join}</button></Link>
                 </div>
             </div>
         </div>

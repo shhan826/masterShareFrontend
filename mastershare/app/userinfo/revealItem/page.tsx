@@ -7,6 +7,8 @@ import CloseX from "@/components/closeX";
 import { MsgUpdateResult, MsgRevealResult, RefreshTokenResult, CreateCookieInput, BoardResult } from "@/lib/type";
 import { updateMessageAPI, getMessageAPI, refreshTokenAPI, getRandomMessageAPI, handleRefreshTokenSuccess, handleRefreshTokenFail, createMessageAPI, getBoardAPI, getMessageAPIGuest } from "@/lib/util";
 import { East_Sea_Dokdo } from 'next/font/google'
+import koTranslation from '../../../locales/ko/common.json';
+import enTranslation from '../../../locales/en/common.json';
 import { clientOrigin } from "@/lib/constant";
 
 const dokdoFont = East_Sea_Dokdo({
@@ -24,14 +26,17 @@ export default function RevealItem () {
     const [title, setTitle] = useState('');
     const [boardId, setBoardId] = useState(0);
     const [isClient, setIsClient] = useState(false);
+    const [translation, setTranslation] = useState(koTranslation);
 
     let accessToken = '';
     let refreshToken = '';
     let userId = '';
+    let lang = '';
     if (isClient) {
         accessToken = localStorage.getItem('accessToken') || '';
         refreshToken = localStorage.getItem('refreshToken') || '';
         userId = localStorage.getItem("userId") || '';
+        lang = localStorage.getItem('lang') || window.navigator.language || '';
     }
 
     const searchParams = useSearchParams();
@@ -47,15 +52,15 @@ export default function RevealItem () {
     const onShareMessage = () => {
         const clipboardText = clientOrigin + currentURL; 
         navigator.clipboard.writeText(clipboardText);
-        alert('현재 열린 쿠키의 주소가 복사되었습니다. 친구들과 공유해보세요!');
+        alert(translation.reveal["share-ok"]);
     };
     const onDeleteMessage = () => {
         if (msgId === null) return null;
         if (msgId === '-1') {
-            alert('삭제할 수 없는 내용입니다.');
+            alert(translation.reveal["delete-fail"]);
             return;
         }
-        if (confirm("삭제된 쿠키는 복원할 수 없습니다. 해당 쿠키를 정말로 삭제하시겠습니까?") === false) {
+        if (confirm(translation.reveal["delete-confirm"]) === false) {
             return;
         }
         updateMessageAPI(Number(msgId), accessToken, { deleted: true })
@@ -63,7 +68,7 @@ export default function RevealItem () {
     };
     const onSaveMessage = () => {
         if (userId === null || userId === '') {
-            alert('로그인이 필요한 서비스입니다.');
+            alert(translation.reveal["request-login"]);
             redirect('/login?target=' + encodeURIComponent(currentURL));
             return;
         }
@@ -77,7 +82,7 @@ export default function RevealItem () {
         createMessageAPI(Number(boardId), input, accessToken)
         .then((result) => {
             if (result.success === true) {
-                alert('정상적으로 쿠키가 등록되었습니다.');
+                alert(translation.reveal["save-success"]);
             }
         });
     };
@@ -98,7 +103,7 @@ export default function RevealItem () {
                 if (result.success) {
                     redirect(backURL);
                 } else {
-                    alert('잘못된 접근입니다.');
+                    alert(translation.reveal["wrong-access"]);
                 }
             });
         } else {
@@ -119,6 +124,13 @@ export default function RevealItem () {
     useEffect(() => {
         setIsClient(true);
     }, []);
+    useEffect(() => {
+        if (lang === 'ko' || lang === 'ko-KR') {
+            setTranslation(koTranslation);
+        } else {
+            setTranslation(enTranslation);
+        }
+    }, [lang]);
     useEffect(() => {
         if (userId === null || userId === '') return;
         getBoardAPI(userId)
@@ -143,8 +155,8 @@ export default function RevealItem () {
         // target message
         if (msgId === null) return;
         if (msgId === '-1') {
-            setMessageString('새해 복 많이 받으세요!');
-            setWriterNickName('관리자');
+            setMessageString('Have a nice day!');
+            setWriterNickName('manager');
         } else if (msgId !== '') {
             if (userId === '') {
                 getMessageAPIGuest(Number(msgId))
@@ -180,7 +192,7 @@ export default function RevealItem () {
                             height={20}
                             className="inline-block"
                         />
-                         <span>&nbsp;&nbsp;공유</span>
+                         <span>&nbsp;&nbsp;{translation.reveal["share"]}</span>
                     </button>
                     { isMyPage ? (
                         <button className='mx-2 btn btn-light' onClick={onDeleteMessage}>
@@ -191,7 +203,7 @@ export default function RevealItem () {
                                 height={20}
                                 className="inline-block"
                             />
-                            <span>&nbsp;&nbsp;버리기</span>
+                            <span>&nbsp;&nbsp;{translation.reveal["delete"]}</span>
                         </button>
                     ) : (
                         <button className='mx-2 btn btn-light' onClick={onSaveMessage}>
@@ -202,7 +214,7 @@ export default function RevealItem () {
                                 height={20}
                                 className="inline-block"
                             />
-                            <span>&nbsp;&nbsp;내 쿠키함에 저장</span>
+                            <span>&nbsp;&nbsp;{translation.reveal["save"]}</span>
                         </button>
                     )}
                 </div>

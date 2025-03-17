@@ -1,0 +1,73 @@
+{
+    "main": {
+      "title-1": "Get a FORTUNE COOKIE, and",
+      "title-2": "Find out your fortune for today!",
+      "get-random": "Get random",
+      "make-random": "Create cookie",
+      "my-list": "My list"
+    },
+    "reveal": {
+        "share": "Share",
+        "share-ok": "The URL of cookie has been copied. Share it with your friends!",
+        "delete": "Delete",
+        "delete-fail": "This cookie cannot be deleted.",
+        "delete-confirm": "Deleted cookie cannot be restored. Are you sure you want to delete?",
+        "request-login": "Log in required service.",
+        "save": "Save to my list",
+        "save-success": "Cookie has been registered successfully.",
+        "wrong-access": "Wrong approach."
+    },
+    "additem": {
+        "sample1": "You may meet the person\nyou've always dreamed of.",
+        "sample2": "Things you worry about\nwill soon be resolved.",
+        "sample3": "Healthy year without\nany illness.",
+        "sample4": "If you give,\nit will come back to you double.",
+        "sample5": "Unexpected income\ncomes in soon",
+        "sample6": "There will be good luck,\nuse it carefully.",
+        "check-input-fail": "Please enter at least one character of content.",
+        "save-success": "Cookie has been registered successfully.",
+        "public": "Public",
+        "make-cookie": "Create cookie",
+        "subject": "Subject"
+    },
+    "userinfo": {
+        "wrong-access": "Wrong approach.",
+        "share-ok": "The URL of cookie has been copied. Share it with your friends!",
+        "title": "'s FORTUNE COOKIE",
+        "sub-title-host": "Share with friends and ask for cookies!",
+        "sub-title-guest": "Leave a fortune cookie here!",
+        "received-list": "Received",
+        "created-list": "Created",
+        "user-info": "User info",
+        "request-cookie": "Request cookies",
+        "home": "Home",
+        "give-cookie": "Gift a cookie",
+        "open-fail-1": "This cookie is only visible to the recipient.",
+        "open-fail-2": "Cookie's not yet been opened. Only can be viewed by the recipient.",
+        "logout-success": "You have been logged out.",
+        "edit-userinfo-success": "Your information has been successfully modified.",
+        "id": "ID",
+        "email": "E-mail",
+        "name": "Nickname",
+        "edit-userinfo": "Edit info",
+        "logout": "Log out"
+    },
+    "login": {
+        "id-fail-1": "Please enter your ID.",
+        "password-fail-1": "Please enter your password",
+        "password-fail-2": "The password does not match. Please check again.",
+        "email-fail": "Please enter your E-mail address.",
+        "name-fail": "Please enter your nickname.",
+        "join-success": "Your registration has been completed.",
+        "id-fail-2": "There is already an account registered with the same ID. Please register with a different ID.",
+        "join": "Sign in",
+        "id": "ID",
+        "password": "Password",
+        "password-confirm": "Password Confirm",
+        "email": "E-mail",
+        "name": "Nickname",
+        "login-fail": "Please check your ID or password again.",
+        "login": "Log in",
+        "login-title": "Please Log in."
+    }
+}

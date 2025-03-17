@@ -11,6 +11,8 @@ import { getBoardAPI } from "@/lib/util";
 import CreatedCookieList from "@/components/createdCookieList";
 import EditMyInfo from "@/components/editMyInfo";
 import { clientOrigin, TAB } from "@/lib/constant";
+import koTranslation from '../../locales/ko/common.json';
+import enTranslation from '../../locales/en/common.json';
 
 const pretendardBold = localFont({
     src: "../fonts/Pretendard-Bold.woff",
@@ -26,20 +28,24 @@ export default function UserInfo() {
     const [tabStyle, setTabStyle] = useState([selectedTabStyle, otherTabStyle, otherTabStyle]);
     const [isMyPage, setIsMyPage] = useState(false);
     const [isClient, setIsClient] = useState(false);
+    const [translation, setTranslation] = useState(koTranslation);
 
     let userId = '';
+    let lang = '';
+
     if (isClient) {
         userId = localStorage.getItem("userId") || '';
+        lang = localStorage.getItem('lang') || '';
     }
 
     const searchParams = useSearchParams();
     const pageId = searchParams.get('pageId');
     if (!pageId || pageId === 'null') {
-        alert('잘못된 접근입니다.');
+        alert(translation.userinfo["wrong-access"]);
         redirect('/');
     }
     const originTab = searchParams.get('tab');
-    const name = (nickName === '') ? '회원' : nickName;
+    const name = (nickName === '') ? 'unknown' : nickName;
     const currentURL = '/userinfo?pageId=' + pageId;
 
     const chooseTab = useCallback((target: number) =>{
@@ -66,12 +72,19 @@ export default function UserInfo() {
     const share = () => {
         const clipboardText = clientOrigin + currentURL;
         navigator.clipboard.writeText(clipboardText);
-        alert('내 페이지 주소가 복사되었습니다. 친구들에게 공유해보세요.');
+        alert(translation.userinfo["share-ok"]);
     };
 
     useEffect(() => {
         setIsClient(true);
     }, []);
+    useEffect(() => {
+        if (lang === 'ko') {
+          setTranslation(koTranslation);
+        } else {
+          setTranslation(enTranslation);
+        }
+      }, [lang]);
     useEffect(() => {
         if (originTab) {
             chooseTab(Number(originTab));
@@ -94,23 +107,23 @@ export default function UserInfo() {
                         {name}
                     </span>
                     <span>
-                        님의 포춘 쿠키
+                        {translation.userinfo["title"]}
                     </span>
                 </div>
                 { isMyPage ? (
                     <div className="text-gray-600">
-                        친구에게 공유해서 쿠키를 요청하세요!&nbsp;&nbsp;
+                        {translation.userinfo["sub-title-host"]}&nbsp;&nbsp;
                     </div>
                 ) : (
                     <div className="text-gray-600">
-                        포춘 쿠키로 새해 덕담을 남겨보세요!
+                        {translation.userinfo["sub-title-guest"]}
                     </div>
                 )}
                 { isMyPage &&
                     <div className="flex flex-row gap-2 justify-center pt-3">
-                        <button type="button" className={tabStyle[0]} style={{borderRadius: "30px"}} onClick={() => chooseTab(TAB.RECEIVED)}>받은 쿠키</button>
-                        <button type="button" className={tabStyle[1]} style={{borderRadius: "30px"}} onClick={() => chooseTab(TAB.CREATED)}>만든 쿠키</button>
-                        <button type="button" className={tabStyle[2]} style={{borderRadius: "30px"}} onClick={() => chooseTab(TAB.MYINFO)}>회원 정보</button>
+                        <button type="button" className={tabStyle[0]} style={{borderRadius: "30px"}} onClick={() => chooseTab(TAB.RECEIVED)}>{translation.userinfo["received-list"]}</button>
+                        <button type="button" className={tabStyle[1]} style={{borderRadius: "30px"}} onClick={() => chooseTab(TAB.CREATED)}>{translation.userinfo["created-list"]}</button>
+                        <button type="button" className={tabStyle[2]} style={{borderRadius: "30px"}} onClick={() => chooseTab(TAB.MYINFO)}>{translation.userinfo["user-info"]}</button>
                     </div>
                 }
             </header>
@@ -130,14 +143,14 @@ export default function UserInfo() {
                                 height={20}
                                 className="inline-block"
                             />
-                            <span>&nbsp;&nbsp;쿠키 요청하기</span>
+                            <span>&nbsp;&nbsp;{translation.userinfo["request-cookie"]}</span>
                         </button>
-                        <Link href="/"><button type="button" className="btn btn-light">홈</button></Link> 
+                        <Link href="/"><button type="button" className="btn btn-light">{translation.userinfo.home}</button></Link> 
                     </div>
                 ) : (
                     <div className="flex flex-row gap-3">
-                        <Link href={'/userinfo/addItem?pageId=' + pageId + "&boardId=" + boardId}><button type="button" className="btn btn-warning">+ 쿠키 만들어주기</button></Link>
-                        <Link href="/"><button type="button" className="btn btn-light">홈</button></Link> 
+                        <Link href={'/userinfo/addItem?pageId=' + pageId + "&boardId=" + boardId}><button type="button" className="btn btn-warning">+ {translation.userinfo["give-cookie"]}</button></Link>
+                        <Link href="/"><button type="button" className="btn btn-light">{translation.userinfo.home}</button></Link> 
                     </div>
                 )}
             </footer>

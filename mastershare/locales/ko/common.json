@@ -1,0 +1,73 @@
+{
+    "main": {
+      "title-1": "다른 사람들이 만들어준 포춘쿠키로",
+      "title-2": "오늘의 운세를 알아보세요!",
+      "get-random": "랜덤 쿠키 받기",
+      "make-random": "랜덤 쿠키 만들기",
+      "my-list": "내 쿠키 목록"
+    },
+    "reveal": {
+        "share": "공유",
+        "share-ok": "현재 열린 쿠키의 주소가 복사되었습니다. 친구들과 공유해보세요!",
+        "delete": "버리기",
+        "delete-fail": "삭제할 수 없는 내용입니다.",
+        "delete-confirm": "삭제된 쿠키는 복원할 수 없습니다. 해당 쿠키를 정말로 삭제하시겠습니까?",
+        "request-login": "로그인이 필요한 서비스입니다.",
+        "save": "내 쿠키함에 저장",
+        "save-success": "정상적으로 쿠키가 등록되었습니다.",
+        "wrong-access": "잘못된 접근입니다."
+    },
+    "additem": {
+        "sample1": "좋은 인연을\n만나게 될 지도?",
+        "sample2": "고민하고 있던 일들이\n곧 풀릴 예정",
+        "sample3": "한 해 내내\n잔병치레 없는 건강",
+        "sample4": "베풀면\n배로 돌아올 것",
+        "sample5": "예상치 못한\n수익이 들어옴",
+        "sample6": "좋은 운이 있어,\n소중히 사용할 것",
+        "check-input-fail": "내용을 한 글자 이상 입력해주세요.",
+        "save-success": "정상적으로 쿠키가 등록되었습니다.",
+        "public": "전체 공개",
+        "make-cookie": "쿠키 만들기",
+        "subject": "제목"
+    },
+    "userinfo": {
+        "wrong-access": "잘못된 접근입니다.",
+        "share-ok": "내 페이지 주소가 복사되었습니다. 친구들에게 공유해보세요.",
+        "title": "'s 포춘 쿠키",
+        "sub-title-host": "친구에게 공유해서 쿠키를 요청하세요!",
+        "sub-title-guest": "포춘 쿠키로 덕담을 남겨보세요!",
+        "received-list": "받은 쿠키",
+        "created-list": "만든 쿠키",
+        "user-info": "회원 정보",
+        "request-cookie": "쿠키 요청하기",
+        "home": "홈",
+        "give-cookie": "쿠키 만들어주기",
+        "open-fail-1": "해당 쿠키는 받은 사람만 확인할 수 있습니다.",
+        "open-fail-2": "아직 열리지 않은 쿠키는 받은 사람만 확인할 수 있습니다.",
+        "logout-success": "로그아웃 되었습니다.",
+        "edit-userinfo-success": "회원 정보가 정상적으로 수정되었습니다.",
+        "id": "아이디",
+        "email": "이메일",
+        "name": "이름(닉네임)",
+        "edit-userinfo": "정보 수정",
+        "logout": "로그아웃"
+    },
+    "login": {
+        "id-fail-1": "아이디를 입력해주세요.",
+        "password-fail-1": "비밀번호를 입력해주세요.",
+        "password-fail-2": "비밀번호가 일치하지 않습니다. 다시 확인해주세요.",
+        "email-fail": "이메일 주소를 입력해주세요.",
+        "name-fail": "이름(닉네임)을 입력해주세요.",
+        "join-success": "가입이 완료되었습니다.",
+        "id-fail-2": "이미 동일한 아이디로 가입된 계정이 있습니다. 다른 아이디로 가입해주세요.",
+        "join": "회원 가입",
+        "id": "아이디",
+        "password": "비밀번호",
+        "password-confirm": "비밀번호 확인",
+        "email": "이메일",
+        "name": "이름(닉네임)",
+        "login-fail": "아이디, 혹은 비밀번호를 다시 한 번 확인해주세요.",
+        "login": "로그인",
+        "login-title": "로그인이 필요합니다."
+    }
+}

@@ -7,6 +7,8 @@ import { updateMessageAPI, refreshTokenAPI, handleRefreshTokenFail, handleRefres
 import { useEffect, useState } from "react";
 import { TAB } from "@/lib/constant";
 import { East_Sea_Dokdo } from 'next/font/google'
+import koTranslation from '../locales/ko/common.json';
+import enTranslation from '../locales/en/common.json';
 
 const dokdoFont = East_Sea_Dokdo({
     preload: false,
@@ -24,6 +26,7 @@ export default function CookieImg (props: ImgProps)
     const {cookieData, pageId} = props;
 
     const [isClient, setIsClient] = useState(false);
+    const [translation, setTranslation] = useState(koTranslation);
 
     const title = cookieData.title;
     const isOpen = cookieData.opened;
@@ -34,15 +37,24 @@ export default function CookieImg (props: ImgProps)
     let accessToken = '';
     let refreshToken = '';
     let userId = '';
+    let lang = '';
     if (isClient) {
         accessToken = localStorage.getItem('accessToken') || '';
         refreshToken = localStorage.getItem('refreshToken') || '';
         userId = localStorage.getItem("userId") || '';
+        lang = localStorage.getItem('lang') || window.navigator.language || '';
     }
     
     useEffect(() => {
         setIsClient(true);
     }, []);
+    useEffect(() => {
+        if (lang === 'ko' || lang === 'ko-KR') {
+            setTranslation(koTranslation);
+        } else {
+            setTranslation(enTranslation);
+        }
+      }, [lang]);
 
     const openMessage = () => {
         if (msgId === -1) redirect(link);
@@ -50,12 +62,12 @@ export default function CookieImg (props: ImgProps)
             if (isPublic || (userId === pageId)) {
                 redirect(link);
             } else {
-                alert('해당 쿠키는 받은 사람만 확인할 수 있습니다.');
+                alert(translation.userinfo["open-fail-1"]);
             }
             return;
         }
         if (userId !== pageId) {
-            alert('아직 열리지 않은 쿠키는 받은 사람만 확인할 수 있습니다.');
+            alert(translation.userinfo["open-fail-2"]);
             return;
         } 
         updateMessageAPI(msgId, accessToken, { opened: true })
@@ -77,7 +89,7 @@ export default function CookieImg (props: ImgProps)
                 if (result.success) {
                     redirect(link);
                 } else {
-                    alert('잘못된 접근입니다.');
+                    alert(translation.userinfo["wrong-access"]);
                 }
             });
         } else {

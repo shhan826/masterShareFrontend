@@ -21,9 +21,9 @@ export default function CreatedCookieList ()
     const [isClient, setIsClient] = useState(false);
     const [cookieArray, setCookieArray] = useState<CookieContent[]>([{
         messageId: -1,
-        sender: '관리자', 
-        title: '제목', 
-        content: '만든 쿠키 내역이 없습니다.',
+        sender: 'manager', 
+        title: 'no cookies', 
+        content: 'no cookies',
         opened: true,
         isPublic: true,
         createdAt: ''
@@ -61,7 +61,7 @@ export default function CreatedCookieList ()
                 if (result.success) { 
                     setMsgList(result);
                 } else {
-                    alert('잘못된 접근입니다.');
+                    alert('Wrong approach.');
                 }
             });
         } else {

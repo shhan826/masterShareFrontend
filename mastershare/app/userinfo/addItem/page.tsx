@@ -7,6 +7,8 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { CreateCookieInput, CreateCookieResult, RefreshTokenResult } from "@/lib/type";
 import { createMessageAPI, createRandomMessageAPI, handleRefreshTokenFail, handleRefreshTokenSuccess, refreshTokenAPI } from "@/lib/util";
+import koTranslation from '../../../locales/ko/common.json';
+import enTranslation from '../../../locales/en/common.json';
 
 const dokdoFont = East_Sea_Dokdo({
     preload: false,
@@ -18,12 +20,13 @@ export default function AddItem ()
     // TODO: 폰트, 이미지 등 다양한 옵션으로 쿠키를 설정할 수 있게 하면 재밌을 듯
     const ref = useRef<HTMLTextAreaElement>(null);
 
-    const [sender, setSender] = useState('익명의 글쓴이');
+    const [sender, setSender] = useState('unknown');
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [sampleString, setSampleString] = useState('');
     const [isPublic, setIsPublic] = useState(true);
     const [isClient, setIsClient] = useState(false);
+    const [translation, setTranslation] = useState(koTranslation);
 
     const searchParams = useSearchParams();
 
@@ -35,13 +38,41 @@ export default function AddItem ()
     let refreshToken = '';
     let userId = '';
     let nickName = '';
+    let lang = '';
     if (isClient) {
         accessToken = localStorage.getItem('accessToken') || '';
         refreshToken = localStorage.getItem('refreshToken') || '';
         userId = localStorage.getItem("userId") || '';
         nickName = localStorage.getItem('nickName') || '';
+        lang = localStorage.getItem('lang') || window.navigator.language || '';
     }
 
+    useEffect(() => {
+        let sampleStringArray: Array<string> = [];
+        if (lang === 'ko' || lang === 'ko-KR') {
+          setTranslation(koTranslation);
+          sampleStringArray = [
+            koTranslation.additem["sample1"],
+            koTranslation.additem["sample2"],
+            koTranslation.additem["sample3"],
+            koTranslation.additem["sample4"],
+            koTranslation.additem["sample5"],
+            koTranslation.additem["sample6"]
+        ];
+        } else {
+          setTranslation(enTranslation);
+          sampleStringArray = [
+            enTranslation.additem["sample1"],
+            enTranslation.additem["sample2"],
+            enTranslation.additem["sample3"],
+            enTranslation.additem["sample4"],
+            enTranslation.additem["sample5"],
+            enTranslation.additem["sample6"]
+        ];
+        }
+        const sampleStringIndex = Math.floor(Math.random() * 6);
+        setSampleString(sampleStringArray[sampleStringIndex]);
+    }, [lang]);
     useEffect(() => {
         if (!isClient) return;
         if (userId === null || userId === '') {
@@ -49,19 +80,7 @@ export default function AddItem ()
         }
     }, [userId, isClient, backURL]);
     useEffect(() => {
-        // 0) 클라이언트용 코드 구분
         setIsClient(true);
-        // 1) 작성 예시 랜덤 적용
-        const sampleStringArray = [
-            '좋은 인연을\n만나게 될 지도?',
-            '고민하고 있던 일들이\n곧 풀릴 예정',
-            '한 해 내내\n잔병치레 없는 건강',
-            '베풀면\n배로 돌아올 것',
-            '예상치 못한\n수익이 들어옴',
-            '좋은 운이 있어,\n소중히 사용할 것'
-        ];
-        const sampleStringIndex = Math.floor(Math.random() * 6);
-        setSampleString(sampleStringArray[sampleStringIndex]);
     }, []);
     useEffect(() => {
         if (nickName && nickName !== '') setSender(nickName);
@@ -89,7 +108,7 @@ export default function AddItem ()
     }
     const checkInputInfo = () => {
         if (content === '') {
-            alert('내용을 한 글자 이상 입력해주세요.');
+            alert(translation.additem["check-input-fail"]);
             return false;
         }
         return true;
@@ -99,7 +118,7 @@ export default function AddItem ()
             refreshTokenAPI(accessToken, refreshToken)
             .then((result) => handleRefreshTokenOnMsgCreate(input, result));
         } else if (result.success === true) {
-            alert('정상적으로 쿠키가 등록되었습니다.');
+            alert(translation.additem["save-success"]);
             redirect(backURL);
         } 
     }
@@ -112,7 +131,7 @@ export default function AddItem ()
                 if (!boardId) return;
                 createMessageAPI(Number(boardId), input, accessToken);
             }
-            alert('정상적으로 쿠키가 등록되었습니다.');
+            alert(translation.additem["save-success"]);
             redirect(backURL);
         } else {
             handleRefreshTokenFail();
@@ -158,17 +177,17 @@ export default function AddItem ()
                 { pageId !== 'random' && 
                     <div className='text-right w-5/6 mb-2.5 z-2'>
                         <input type="checkbox" checked={isPublic} onChange={onCheckBoxHandler}/>
-                        <span> 전체 공개</span>
+                        <span> {translation.additem["public"]}</span>
                     </div>
                 }
-                <button className='mx-3 btn btn-primary z-2' onClick={createCookie}>쿠키 만들기</button>
+                <button className='mx-3 btn btn-primary z-2' onClick={createCookie}>{translation.additem["make-cookie"]}</button>
             </div>
             <div className='absolute flex flex-col justify-center items-center w-full h-dvh z-1'>
                 <div className='text-left w-5/6 mb-1'>
                     <input
                         type='text' 
                         className={dokdoFont.className + " text-center text-xl p-2 shadow-xl"}
-                        maxLength={10} placeholder="제목"
+                        maxLength={10} placeholder={translation.additem["subject"]}
                         onChange={onTitleHandler}>
                     </input> 
                 </div>

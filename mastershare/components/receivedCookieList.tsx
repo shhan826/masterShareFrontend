@@ -22,9 +22,9 @@ export default function ReceivedCookieList (props: CookieListProps)
     const [isClient, setIsClient] = useState(false);
     const [cookieArray, setCookieArray] = useState<CookieContent[]>([{
         messageId: -1,
-        sender: '관리자', 
-        title: '기본 제공 쿠키', 
-        content: '새해 복 많이 받으세요!',
+        sender: 'manager', 
+        title: 'Cookie', 
+        content: 'Have a good day!',
         opened: false,
         isPublic: true,
         createdAt: ''
