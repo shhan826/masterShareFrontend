@@ -38,7 +38,7 @@ export default function Home() {
   return (
     <div>
       <div className="fixed top-0 left-0 w-full">
-        <div className="text-gray-400 m-3 text-sm cursor-pointer" onClick={changeLang}>{lang === 'ko' ? 'English' : '한국어'}</div>
+        <div className="text-gray-400 m-3 text-sm cursor-pointer" onClick={changeLang}>{lang === 'ko' || lang === 'ko-KR' ? 'English' : '한국어'}</div>
       </div>
       <div className="grid grid-rows-[80px_1fr_20px] items-center justify-items-center min-h-dvh p-9 pb-20 gap-10">
         <header className="row-start-1 flex gap-6 flex-wrap pt-3 items-center justify-center text-center">
